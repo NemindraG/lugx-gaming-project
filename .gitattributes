@@ -1,0 +1,44 @@
+# Lugx Gaming Platform - Git Attributes Configuration
+
+# Text files
+*.md text
+*.txt text
+*.py text
+*.js text
+*.html text
+*.css text
+*.json text
+*.yaml text
+*.yml text
+*.xml text
+*.sql text
+*.sh text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Docker files
+Dockerfile text
+docker-compose*.yml text
+
+# Kubernetes files
+*.yaml text
+*.yml text
+
+# Configuration files
+*.conf text
+*.config text
+*.ini text
+
+# Scripts should have LF line endings
+*.sh text eol=lf

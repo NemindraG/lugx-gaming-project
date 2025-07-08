@@ -1,0 +1,90 @@
+# Resource Quotas for Lugx Gaming Platform
+# Ensures fair resource allocation and prevents resource exhaustion
+
+---
+# Development environment quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: dev-quota
+  namespace: lugx-dev
+spec:
+  hard:
+    requests.cpu: "10"
+    requests.memory: 20Gi
+    limits.cpu: "20"
+    limits.memory: 40Gi
+    persistentvolumeclaims: "10"
+    services: "20"
+    services.loadbalancers: "2"
+    pods: "50"
+
+---
+# Staging environment quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: staging-quota
+  namespace: lugx-staging
+spec:
+  hard:
+    requests.cpu: "20"
+    requests.memory: 40Gi
+    limits.cpu: "40"
+    limits.memory: 80Gi
+    persistentvolumeclaims: "20"
+    services: "30"
+    services.loadbalancers: "3"
+    pods: "100"
+
+---
+# Production environment quota
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: prod-quota
+  namespace: lugx-prod
+spec:
+  hard:
+    requests.cpu: "100"
+    requests.memory: 200Gi
+    limits.cpu: "200"
+    limits.memory: 400Gi
+    persistentvolumeclaims: "50"
+    services: "50"
+    services.loadbalancers: "5"
+    pods: "500"
+
+---
+# Storage quota for each namespace
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: storage-quota-dev
+  namespace: lugx-dev
+spec:
+  hard:
+    requests.storage: 100Gi
+    fast-ssd.storageclass.storage.k8s.io/requests.storage: 50Gi
+    standard.storageclass.storage.k8s.io/requests.storage: 100Gi
+    slow-backup.storageclass.storage.k8s.io/requests.storage: 500Gi
+
+---
+# Limit ranges for pod defaults
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: pod-limit-range
+  namespace: lugx-dev
+spec:
+  limits:
+  - default:
+      cpu: 500m
+      memory: 512Mi
+    defaultRequest:
+      cpu: 100m
+      memory: 128Mi
+    type: Container
+  - max:
+      storage: 50Gi
+    type: PersistentVolumeClaim

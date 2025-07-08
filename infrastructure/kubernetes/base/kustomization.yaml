@@ -1,0 +1,27 @@
+# Base Kustomization for Lugx Gaming Platform
+# Aggregates all base Kubernetes resources
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Common labels for all resources
+commonLabels:
+  app.kubernetes.io/name: lugx-gaming
+  app.kubernetes.io/managed-by: kustomize
+
+# Resources to include
+resources:
+  # Namespaces
+  - namespaces/namespaces.yaml
+  - namespaces/resource-quotas.yaml
+  
+  # RBAC
+  - rbac/service-accounts.yaml
+  - rbac/roles.yaml
+  - rbac/role-bindings.yaml
+  
+  # Network
+  - network/network-policies.yaml
+  
+  # Storage
+  - storage/storage-classes.yaml

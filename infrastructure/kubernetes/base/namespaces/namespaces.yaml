@@ -1,0 +1,71 @@
+# Namespace Definitions for Lugx Gaming Platform
+# Provides logical separation between environments
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lugx-dev
+  labels:
+    name: lugx-dev
+    environment: development
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: namespace
+spec:
+  finalizers:
+  - kubernetes
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lugx-staging
+  labels:
+    name: lugx-staging
+    environment: staging
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: namespace
+spec:
+  finalizers:
+  - kubernetes
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lugx-prod
+  labels:
+    name: lugx-prod
+    environment: production
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: namespace
+spec:
+  finalizers:
+  - kubernetes
+
+---
+# Istio system namespace (if not exists)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+  labels:
+    name: istio-system
+    istio-injection: disabled
+spec:
+  finalizers:
+  - kubernetes
+
+---
+# Monitoring namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: lugx-monitoring
+  labels:
+    name: lugx-monitoring
+    environment: shared
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: monitoring
+spec:
+  finalizers:
+  - kubernetes

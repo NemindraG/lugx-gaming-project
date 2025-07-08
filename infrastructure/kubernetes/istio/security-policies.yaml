@@ -1,0 +1,204 @@
+# Security Policies for Lugx Gaming Platform
+# Implements zero-trust networking and authentication
+
+---
+# Mesh-wide mTLS Policy
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: lugx-dev
+spec:
+  mtls:
+    mode: STRICT  # Require mTLS for all service-to-service communication
+
+---
+# JWT Authentication for External Requests
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: lugx-dev
+spec:
+  selector:
+    matchLabels:
+      app: order-service  # Apply JWT validation to order service
+  jwtRules:
+  - issuer: "https://lugx-gaming.auth0.com/"
+    jwksUri: "https://lugx-gaming.auth0.com/.well-known/jwks.json"
+    audiences:
+    - "lugx-gaming-api"
+    forwardOriginalToken: true
+
+---
+# Authorization Policies
+
+# Allow all traffic within the mesh (authenticated via mTLS)
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-mesh-traffic
+  namespace: lugx-dev
+spec:
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/lugx-dev/sa/game-service-sa"]
+        principals: ["cluster.local/ns/lugx-dev/sa/order-service-sa"]
+        principals: ["cluster.local/ns/lugx-dev/sa/analytics-service-sa"]
+        principals: ["cluster.local/ns/lugx-dev/sa/frontend-sa"]
+
+---
+# Restrict Database Access
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: postgres-game-access
+  namespace: lugx-dev
+spec:
+  selector:
+    matchLabels:
+      app: postgres-game
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/lugx-dev/sa/game-service-sa"]
+    to:
+    - operation:
+        ports: ["5432"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: postgres-order-access
+  namespace: lugx-dev
+spec:
+  selector:
+    matchLabels:
+      app: postgres-order
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/lugx-dev/sa/order-service-sa"]
+    to:
+    - operation:
+        ports: ["5432"]
+
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: clickhouse-access
+  namespace: lugx-dev
+spec:
+  selector:
+    matchLabels:
+      app: clickhouse
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/lugx-dev/sa/analytics-service-sa"]
+    to:
+    - operation:
+        ports: ["8123", "9000"]
+
+---
+# Rate Limiting Policy
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: rate-limit-filter
+  namespace: lugx-dev
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.local_ratelimit
+        typed_config:
+          "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+          type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+          value:
+            stat_prefix: rate_limiter
+            token_bucket:
+              max_tokens: 1000
+              tokens_per_fill: 1000
+              fill_interval: 60s
+            filter_enabled:
+              runtime_key: rate_limit_enabled
+              default_value:
+                numerator: 100
+                denominator: HUNDRED
+            filter_enforced:
+              runtime_key: rate_limit_enforced
+              default_value:
+                numerator: 100
+                denominator: HUNDRED
+
+---
+# CORS Policy for Frontend
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: cors-filter
+  namespace: lugx-dev
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.cors
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.cors.v3.Cors
+          allow_origin_string_match:
+          - prefix: "http://localhost"
+          - prefix: "https://lugx.local"
+          allow_methods: "GET,POST,PUT,DELETE,OPTIONS"
+          allow_headers: "authorization,content-type,x-user-id,x-request-id"
+          max_age: "86400"
+
+---
+# Security Headers Policy
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: security-headers
+  namespace: lugx-dev
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          inline_code: |
+            function envoy_on_response(response_handle)
+              response_handle:headers():add("X-Frame-Options", "DENY")
+              response_handle:headers():add("X-Content-Type-Options", "nosniff")
+              response_handle:headers():add("X-XSS-Protection", "1; mode=block")
+              response_handle:headers():add("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+              response_handle:headers():add("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+            end

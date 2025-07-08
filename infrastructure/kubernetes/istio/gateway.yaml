@@ -1,0 +1,191 @@
+# Istio Gateway for Lugx Gaming Platform
+# Handles external traffic routing
+
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: lugx-gateway
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  # HTTP traffic (will redirect to HTTPS in production)
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "lugx.local"
+    - "localhost"
+    - "*"
+  # HTTPS traffic (production)
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: lugx-tls-secret
+    hosts:
+    - "lugx.local"
+    - "*.lugx.local"
+
+---
+# VirtualService for Frontend
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend-vs
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: frontend
+spec:
+  hosts:
+  - "lugx.local"
+  - "localhost"
+  - "*"
+  gateways:
+  - lugx-gateway
+  http:
+  # API routes - redirect to backend services
+  - match:
+    - uri:
+        prefix: /api/v1/games
+    route:
+    - destination:
+        host: game-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8001
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  
+  - match:
+    - uri:
+        prefix: /api/v1/orders
+    route:
+    - destination:
+        host: order-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8002
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  
+  - match:
+    - uri:
+        prefix: /api/v1/auth
+    route:
+    - destination:
+        host: order-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8002
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  
+  - match:
+    - uri:
+        prefix: /api/v1/cart
+    route:
+    - destination:
+        host: order-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8002
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  
+  - match:
+    - uri:
+        prefix: /api/v1/analytics
+    route:
+    - destination:
+        host: analytics-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8003
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+  
+  # Default route - serve frontend
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend.lugx-dev.svc.cluster.local
+        port:
+          number: 80
+    timeout: 10s
+
+---
+# VirtualService for inter-service communication
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: game-service-vs
+  namespace: lugx-dev
+spec:
+  hosts:
+  - game-service.lugx-dev.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: game-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8001
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-service-vs
+  namespace: lugx-dev
+spec:
+  hosts:
+  - order-service.lugx-dev.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: order-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8002
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: analytics-service-vs
+  namespace: lugx-dev
+spec:
+  hosts:
+  - analytics-service.lugx-dev.svc.cluster.local
+  http:
+  - route:
+    - destination:
+        host: analytics-service.lugx-dev.svc.cluster.local
+        port:
+          number: 8003
+    timeout: 60s  # Longer timeout for analytics queries
+    retries:
+      attempts: 2
+      perTryTimeout: 30s

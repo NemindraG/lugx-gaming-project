@@ -1,0 +1,223 @@
+# Network Policies for Lugx Gaming Platform
+# Controls traffic flow between pods and services
+
+---
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: lugx-dev
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+---
+# Allow frontend to access backend services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend-egress
+  namespace: lugx-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: game-service
+    ports:
+    - protocol: TCP
+      port: 8001
+  - to:
+    - podSelector:
+        matchLabels:
+          app: order-service
+    ports:
+    - protocol: TCP
+      port: 8002
+  - to:
+    - podSelector:
+        matchLabels:
+          app: analytics-service
+    ports:
+    - protocol: TCP
+      port: 8003
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+
+---
+# Allow ingress to Game Service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: game-service-ingress
+  namespace: lugx-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: game-service
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - podSelector:
+        matchLabels:
+          app: istio-ingressgateway
+    - podSelector:
+        matchLabels:
+          app: order-service  # Order service can query game info
+    ports:
+    - protocol: TCP
+      port: 8001
+
+---
+# Allow ingress to Order Service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: order-service-ingress
+  namespace: lugx-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: order-service
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - podSelector:
+        matchLabels:
+          app: istio-ingressgateway
+    ports:
+    - protocol: TCP
+      port: 8002
+
+---
+# Allow ingress to Analytics Service
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: analytics-service-ingress
+  namespace: lugx-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: analytics-service
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - podSelector:
+        matchLabels:
+          app: game-service
+    - podSelector:
+        matchLabels:
+          app: order-service
+    - podSelector:
+        matchLabels:
+          app: istio-ingressgateway
+    ports:
+    - protocol: TCP
+      port: 8003
+
+---
+# Allow services to access databases
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: database-access
+  namespace: lugx-dev
+spec:
+  podSelector:
+    matchLabels:
+      tier: database
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: game-service
+    ports:
+    - protocol: TCP
+      port: 5432  # PostgreSQL Game DB
+  - from:
+    - podSelector:
+        matchLabels:
+          app: order-service
+    ports:
+    - protocol: TCP
+      port: 5433  # PostgreSQL Order DB
+  - from:
+    - podSelector:
+        matchLabels:
+          app: analytics-service
+    ports:
+    - protocol: TCP
+      port: 8123  # ClickHouse HTTP
+    - protocol: TCP
+      port: 9000  # ClickHouse Native
+
+---
+# Allow all services to access Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-access
+  namespace: lugx-dev
+spec:
+  podSelector:
+    matchLabels:
+      app: redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          tier: backend
+    ports:
+    - protocol: TCP
+      port: 6379
+
+---
+# Allow monitoring access
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: monitoring-access
+  namespace: lugx-dev
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: lugx-monitoring
+    ports:
+    - protocol: TCP
+      port: 9090  # Prometheus metrics

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <profiles>
+        <default>
+            <max_memory_usage>10000000000</max_memory_usage>
+            <max_memory_usage_for_user>10000000000</max_memory_usage_for_user>
+            <max_bytes_before_external_group_by>1000000000</max_bytes_before_external_group_by>
+            <max_bytes_before_external_sort>1000000000</max_bytes_before_external_sort>
+            <max_result_rows>1000000</max_result_rows>
+            <max_result_bytes>10000000</max_result_bytes>
+            <max_rows_to_read>1000000000</max_rows_to_read>
+            <max_bytes_to_read>100000000000</max_bytes_to_read>
+            <max_execution_time>3600</max_execution_time>
+        </default>
+        
+        <analytics>
+            <max_memory_usage>20000000000</max_memory_usage>
+            <max_memory_usage_for_user>20000000000</max_memory_usage_for_user>
+            <max_execution_time>7200</max_execution_time>
+            <priority>1</priority>
+        </analytics>
+    </profiles>
+    
+    <users>
+        <default>
+            <password></password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+            <access_management>1</access_management>
+        </default>
+        
+        <analytics_service>
+            <password_sha256_hex>8b4066256e3d3e94e0435b36ba2c0d7e53c16e44c31d33b0b7d0a0b6a1c5e8f9</password_sha256_hex>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>analytics</profile>
+            <quota>default</quota>
+            <databases>
+                <lugx_analytics>
+                    <lugx_analytics>1</lugx_analytics>
+                </lugx_analytics>
+            </databases>
+        </analytics_service>
+    </users>
+    
+    <quotas>
+        <default>
+            <interval>
+                <duration>3600</duration>
+                <queries>1000000</queries>
+                <errors>1000</errors>
+                <result_rows>0</result_rows>
+                <read_rows>0</read_rows>
+                <execution_time>0</execution_time>
+            </interval>
+        </default>
+    </quotas>
+</clickhouse>

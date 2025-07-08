@@ -1,0 +1,875 @@
+openapi: 3.0.3
+info:
+  title: Lugx Gaming - Game Service API
+  description: FastAPI microservice for game catalog management
+  version: 1.0.0
+  contact:
+    name: Lugx Gaming Team
+    email: team@lugxgaming.com
+
+servers:
+  - url: http://localhost:8001/api/v1
+    description: Local development
+  - url: https://game-service.lugxgaming.com/api/v1
+    description: Production
+
+paths:
+  /games:
+    get:
+      summary: Get games list with pagination and filtering
+      tags:
+        - Games
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: price_min
+          in: query
+          schema:
+            type: number
+        - name: price_max
+          in: query
+          schema:
+            type: number
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Games list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create new game (Admin only)
+      tags:
+        - Games
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameCreate'
+      responses:
+        '201':
+          description: Game created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+
+  /games/{game_id}:
+    get:
+      summary: Get game by ID
+      tags:
+        - Games
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Game details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameDetail'
+        '404':
+          description: Game not found
+
+    put:
+      summary: Update game (Admin only)
+      tags:
+        - Games
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameUpdate'
+      responses:
+        '200':
+          description: Game updated successfully
+        '404':
+          description: Game not found
+        '401':
+          description: Unauthorized
+
+  /games/search:
+    get:
+      summary: Full-text search games
+      tags:
+        - Games
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+                  total:
+                    type: integer
+
+  /categories:
+    get:
+      summary: Get all game categories
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+
+  /games/trending:
+    get:
+      summary: Get trending games (Homepage)
+      tags:
+        - Games
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Trending games list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+                  total:
+                    type: integer
+
+  /games/most-played:
+    get:
+      summary: Get most played games (Homepage)
+      tags:
+        - Games
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Most played games list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+                  total:
+                    type: integer
+
+  /games/{game_id}/related:
+    get:
+      summary: Get related games for recommendations
+      tags:
+        - Games
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 6
+            maximum: 20
+      responses:
+        '200':
+          description: Related games list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Game'
+                  total:
+                    type: integer
+        '404':
+          description: Game not found
+
+  /games/{game_id}/reviews:
+    get:
+      summary: Get game reviews
+      tags:
+        - Reviews
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Game reviews list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '404':
+          description: Game not found
+
+    post:
+      summary: Add game review
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid review data
+        '401':
+          description: Unauthorized
+        '404':
+          description: Game not found
+        '409':
+          description: User already reviewed this game
+
+  /games/{game_id}/inventory:
+    get:
+      summary: Check game inventory status
+      tags:
+        - Inventory
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Inventory status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inventory'
+
+    post:
+      summary: Reserve game inventory (Internal service call)
+      tags:
+        - Inventory
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                reservation_id:
+                  type: string
+      responses:
+        '200':
+          description: Inventory reserved
+        '409':
+          description: Insufficient inventory
+
+    put:
+      summary: Update game inventory (Admin only)
+      tags:
+        - Inventory
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 0
+      responses:
+        '200':
+          description: Inventory updated successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+        '404':
+          description: Game not found
+
+  /games/{game_id}/images:
+    get:
+      summary: Get game images
+      tags:
+        - Images
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Game images list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  images:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameImage'
+        '404':
+          description: Game not found
+
+    post:
+      summary: Upload game image (Admin only)
+      tags:
+        - Images
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: game_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                image_type:
+                  type: string
+                  enum: [cover, screenshot, thumbnail]
+                alt_text:
+                  type: string
+      responses:
+        '201':
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameImage'
+        '400':
+          description: Invalid image data
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+        '404':
+          description: Game not found
+
+  /publishers:
+    get:
+      summary: Get all game publishers
+      tags:
+        - Publishers
+      responses:
+        '200':
+          description: Publishers list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Publisher'
+
+    post:
+      summary: Create new publisher (Admin only)
+      tags:
+        - Publishers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublisherCreate'
+      responses:
+        '201':
+          description: Publisher created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
+        '400':
+          description: Invalid publisher data
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+
+  /analytics/games/popular:
+    get:
+      summary: Get popular games analytics
+      tags:
+        - Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: week
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+      responses:
+        '200':
+          description: Popular games analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Game'
+                        - type: object
+                          properties:
+                            view_count:
+                              type: integer
+                            purchase_count:
+                              type: integer
+                            conversion_rate:
+                              type: number
+                              format: float
+
+  /health:
+    get:
+      summary: Health check endpoint
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  database:
+                    type: string
+                    example: "connected"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    serviceAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Service-to-service authentication
+
+  schemas:
+    Game:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: decimal
+        discount_price:
+          type: number
+          format: decimal
+          nullable: true
+        category:
+          type: string
+        release_date:
+          type: string
+          format: date
+        image_url:
+          type: string
+        rating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+        in_stock:
+          type: boolean
+        created_at:
+          type: string
+          format: datetime
+        updated_at:
+          type: string
+          format: datetime
+
+    GameCreate:
+      type: object
+      required:
+        - name
+        - description
+        - price
+        - category
+        - release_date
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+        discount_price:
+          type: number
+          format: decimal
+          minimum: 0
+          nullable: true
+        category:
+          type: string
+        release_date:
+          type: string
+          format: date
+        image_url:
+          type: string
+          nullable: true
+
+    GameUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: number
+          format: decimal
+          minimum: 0
+        discount_price:
+          type: number
+          format: decimal
+          minimum: 0
+          nullable: true
+        category:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+
+    GameDetail:
+      allOf:
+        - $ref: '#/components/schemas/Game'
+        - type: object
+          properties:
+            related_games:
+              type: array
+              items:
+                $ref: '#/components/schemas/Game'
+            reviews_count:
+              type: integer
+            average_rating:
+              type: number
+              format: float
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        game_count:
+          type: integer
+
+    Inventory:
+      type: object
+      properties:
+        game_id:
+          type: integer
+        quantity:
+          type: integer
+        reserved:
+          type: integer
+        available:
+          type: integer
+        last_updated:
+          type: string
+          format: datetime
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+        game_id:
+          type: integer
+        user_id:
+          type: integer
+        username:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: datetime
+        updated_at:
+          type: string
+          format: datetime
+
+    ReviewCreate:
+      type: object
+      required:
+        - rating
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          maxLength: 1000
+          nullable: true
+
+    GameImage:
+      type: object
+      properties:
+        id:
+          type: integer
+        game_id:
+          type: integer
+        image_url:
+          type: string
+        image_type:
+          type: string
+          enum: [cover, screenshot, thumbnail]
+        alt_text:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: datetime
+
+    Publisher:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        logo_url:
+          type: string
+          nullable: true
+        game_count:
+          type: integer
+        created_at:
+          type: string
+          format: datetime
+
+    PublisherCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        logo_url:
+          type: string
+          nullable: true
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true

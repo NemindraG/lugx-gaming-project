@@ -1,0 +1,1351 @@
+openapi: 3.0.3
+info:
+  title: Lugx Gaming - Analytics Service API
+  description: FastAPI microservice for real-time analytics and business intelligence
+  version: 1.0.0
+  contact:
+    name: Lugx Gaming Team
+    email: team@lugxgaming.com
+
+servers:
+  - url: http://localhost:8003/api/v1
+    description: Local development
+  - url: https://analytics-service.lugxgaming.com/api/v1
+    description: Production
+
+paths:
+  /events/pageview:
+    post:
+      summary: Track page view events
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageViewEvent'
+      responses:
+        '201':
+          description: Page view event recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          description: Invalid event data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /events/click:
+    post:
+      summary: Track click events
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClickEvent'
+      responses:
+        '201':
+          description: Click event recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          description: Invalid event data
+
+  /events/scroll:
+    post:
+      summary: Track scroll depth events
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScrollEvent'
+      responses:
+        '201':
+          description: Scroll event recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          description: Invalid event data
+
+  /events/search:
+    post:
+      summary: Track search events
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchEvent'
+      responses:
+        '201':
+          description: Search event recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          description: Invalid event data
+
+  /events/cart:
+    post:
+      summary: Track cart-related events
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartEvent'
+      responses:
+        '201':
+          description: Cart event recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          description: Invalid event data
+
+  /events/purchase:
+    post:
+      summary: Track purchase completion events
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseEvent'
+      responses:
+        '201':
+          description: Purchase event recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '400':
+          description: Invalid event data
+
+  /events/batch:
+    post:
+      summary: Submit multiple events in batch
+      tags:
+        - Event Tracking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchEvents'
+      responses:
+        '201':
+          description: Batch events processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                  failed:
+                    type: integer
+                  errors:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Invalid batch data
+
+  /analytics/real-time/active-users:
+    get:
+      summary: Get current active users count
+      tags:
+        - Real-time Analytics
+      security:
+        - serviceAuth: []
+      responses:
+        '200':
+          description: Active users count retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  active_users:
+                    type: integer
+                  timestamp:
+                    type: string
+                    format: datetime
+        '401':
+          description: Unauthorized
+
+  /analytics/real-time/page-views:
+    get:
+      summary: Get real-time page views per minute
+      tags:
+        - Real-time Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: last_minutes
+          in: query
+          schema:
+            type: integer
+            default: 30
+            maximum: 1440
+      responses:
+        '200':
+          description: Real-time page views data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: datetime
+                        page_views:
+                          type: integer
+                  total:
+                    type: integer
+
+  /analytics/real-time/conversion-rate:
+    get:
+      summary: Get real-time conversion rate
+      tags:
+        - Real-time Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [hour, day]
+            default: hour
+      responses:
+        '200':
+          description: Real-time conversion rate
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversion_rate:
+                    type: number
+                    format: float
+                  total_visitors:
+                    type: integer
+                  total_purchases:
+                    type: integer
+                  period:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: datetime
+
+  /analytics/games/popular:
+    get:
+      summary: Get popular games analytics
+      tags:
+        - Game Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: week
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+      responses:
+        '200':
+          description: Popular games analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameAnalytics'
+                  period:
+                    type: string
+                  generated_at:
+                    type: string
+                    format: datetime
+
+  /analytics/games/trending:
+    get:
+      summary: Get trending games analytics
+      tags:
+        - Game Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [hour, day, week]
+            default: day
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 50
+      responses:
+        '200':
+          description: Trending games analytics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TrendingGame'
+                  period:
+                    type: string
+                  generated_at:
+                    type: string
+                    format: datetime
+
+  /analytics/user-behavior/funnel:
+    get:
+      summary: Get conversion funnel analytics
+      tags:
+        - User Behavior
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: week
+        - name: funnel_type
+          in: query
+          schema:
+            type: string
+            enum: [purchase, engagement]
+            default: purchase
+      responses:
+        '200':
+          description: Funnel analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunnelAnalytics'
+
+  /analytics/user-behavior/heatmap:
+    get:
+      summary: Get page heatmap data
+      tags:
+        - User Behavior
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: page_url
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: week
+      responses:
+        '200':
+          description: Heatmap data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatmapData'
+
+  /analytics/user-behavior/session-analysis:
+    get:
+      summary: Get user session analytics
+      tags:
+        - User Behavior
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: week
+        - name: segment
+          in: query
+          schema:
+            type: string
+            enum: [all, new, returning]
+            default: all
+      responses:
+        '200':
+          description: Session analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionAnalytics'
+
+  /analytics/revenue/summary:
+    get:
+      summary: Get revenue analytics summary
+      tags:
+        - Revenue Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+        - name: compare_previous
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Revenue summary retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RevenueSummary'
+
+  /analytics/revenue/by-game:
+    get:
+      summary: Get revenue analytics by game
+      tags:
+        - Revenue Analytics
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Revenue by game retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GameRevenue'
+                  period:
+                    type: string
+                  total_revenue:
+                    type: number
+                    format: decimal
+
+  /analytics/dashboard/kpis:
+    get:
+      summary: Get key performance indicators for dashboard
+      tags:
+        - Dashboard
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: day
+      responses:
+        '200':
+          description: KPIs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardKPIs'
+
+  /analytics/dashboard/charts:
+    get:
+      summary: Get chart data for dashboard
+      tags:
+        - Dashboard
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: chart_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [revenue_trend, user_growth, popular_games, conversion_funnel]
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [week, month, quarter, year]
+            default: month
+      responses:
+        '200':
+          description: Chart data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChartData'
+
+  /analytics/reports/user-segments:
+    get:
+      summary: Get user segmentation report
+      tags:
+        - Reports
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: segment_type
+          in: query
+          schema:
+            type: string
+            enum: [behavior, demographic, value]
+            default: behavior
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [month, quarter, year]
+            default: month
+      responses:
+        '200':
+          description: User segmentation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSegmentReport'
+
+  /analytics/alerts/create:
+    post:
+      summary: Create analytics alert rule
+      tags:
+        - Alerts
+      security:
+        - serviceAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRuleCreate'
+      responses:
+        '201':
+          description: Alert rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertRule'
+        '400':
+          description: Invalid alert rule data
+
+  /analytics/alerts:
+    get:
+      summary: Get all alert rules
+      tags:
+        - Alerts
+      security:
+        - serviceAuth: []
+      responses:
+        '200':
+          description: Alert rules retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertRule'
+
+  /analytics/export/data:
+    post:
+      summary: Export analytics data
+      tags:
+        - Data Export
+      security:
+        - serviceAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataExportRequest'
+      responses:
+        '202':
+          description: Export job initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                  status:
+                    type: string
+                    example: "processing"
+                  estimated_completion:
+                    type: string
+                    format: datetime
+        '400':
+          description: Invalid export request
+
+  /analytics/export/jobs/{job_id}:
+    get:
+      summary: Get export job status
+      tags:
+        - Data Export
+      security:
+        - serviceAuth: []
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Export job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJobStatus'
+        '404':
+          description: Export job not found
+
+  /internal/games/sync:
+    post:
+      summary: Sync game data from Game Service
+      tags:
+        - Internal
+      security:
+        - serviceAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                games:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      category:
+                        type: string
+                      price:
+                        type: number
+                        format: decimal
+      responses:
+        '200':
+          description: Game data synchronized successfully
+        '400':
+          description: Invalid sync data
+
+  /internal/orders/sync:
+    post:
+      summary: Sync order data from Order Service
+      tags:
+        - Internal
+      security:
+        - serviceAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      user_id:
+                        type: integer
+                      total_amount:
+                        type: number
+                        format: decimal
+                      status:
+                        type: string
+                      created_at:
+                        type: string
+                        format: datetime
+      responses:
+        '200':
+          description: Order data synchronized successfully
+        '400':
+          description: Invalid sync data
+
+  /health:
+    get:
+      summary: Health check endpoint
+      tags:
+        - Health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  clickhouse:
+                    type: string
+                    example: "connected"
+                  redis:
+                    type: string
+                    example: "connected"
+                  queue:
+                    type: string
+                    example: "healthy"
+
+components:
+  securitySchemes:
+    serviceAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Service-to-service authentication
+
+  schemas:
+    PageViewEvent:
+      type: object
+      required:
+        - session_id
+        - page_url
+        - page_title
+        - timestamp
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+        page_url:
+          type: string
+        page_title:
+          type: string
+        referrer:
+          type: string
+          nullable: true
+        user_agent:
+          type: string
+        ip_address:
+          type: string
+        viewport_width:
+          type: integer
+        viewport_height:
+          type: integer
+        timestamp:
+          type: string
+          format: datetime
+
+    ClickEvent:
+      type: object
+      required:
+        - session_id
+        - page_url
+        - element_selector
+        - timestamp
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+        page_url:
+          type: string
+        element_selector:
+          type: string
+        element_text:
+          type: string
+          nullable: true
+        click_x:
+          type: integer
+        click_y:
+          type: integer
+        timestamp:
+          type: string
+          format: datetime
+
+    ScrollEvent:
+      type: object
+      required:
+        - session_id
+        - page_url
+        - scroll_depth
+        - timestamp
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+        page_url:
+          type: string
+        scroll_depth:
+          type: integer
+          minimum: 0
+          maximum: 100
+        max_scroll_depth:
+          type: integer
+          minimum: 0
+          maximum: 100
+        time_on_page:
+          type: integer
+        timestamp:
+          type: string
+          format: datetime
+
+    SearchEvent:
+      type: object
+      required:
+        - session_id
+        - search_query
+        - timestamp
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+        search_query:
+          type: string
+        search_filters:
+          type: object
+          nullable: true
+        results_count:
+          type: integer
+        click_position:
+          type: integer
+          nullable: true
+        timestamp:
+          type: string
+          format: datetime
+
+    CartEvent:
+      type: object
+      required:
+        - session_id
+        - event_type
+        - game_id
+        - timestamp
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: integer
+          nullable: true
+        event_type:
+          type: string
+          enum: [add, remove, update, view]
+        game_id:
+          type: integer
+        quantity:
+          type: integer
+          nullable: true
+        price:
+          type: number
+          format: decimal
+          nullable: true
+        timestamp:
+          type: string
+          format: datetime
+
+    PurchaseEvent:
+      type: object
+      required:
+        - session_id
+        - order_id
+        - total_amount
+        - timestamp
+      properties:
+        session_id:
+          type: string
+        user_id:
+          type: integer
+        order_id:
+          type: integer
+        total_amount:
+          type: number
+          format: decimal
+        payment_method:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              game_id:
+                type: integer
+              quantity:
+                type: integer
+              price:
+                type: number
+                format: decimal
+        timestamp:
+          type: string
+          format: datetime
+
+    BatchEvents:
+      type: object
+      required:
+        - events
+      properties:
+        events:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/PageViewEvent'
+              - $ref: '#/components/schemas/ClickEvent'
+              - $ref: '#/components/schemas/ScrollEvent'
+              - $ref: '#/components/schemas/SearchEvent'
+              - $ref: '#/components/schemas/CartEvent'
+              - $ref: '#/components/schemas/PurchaseEvent'
+          maxItems: 100
+
+    EventResponse:
+      type: object
+      properties:
+        event_id:
+          type: string
+        status:
+          type: string
+          example: "recorded"
+        timestamp:
+          type: string
+          format: datetime
+
+    GameAnalytics:
+      type: object
+      properties:
+        game_id:
+          type: integer
+        game_name:
+          type: string
+        view_count:
+          type: integer
+        click_count:
+          type: integer
+        add_to_cart_count:
+          type: integer
+        purchase_count:
+          type: integer
+        conversion_rate:
+          type: number
+          format: float
+        revenue:
+          type: number
+          format: decimal
+
+    TrendingGame:
+      type: object
+      properties:
+        game_id:
+          type: integer
+        game_name:
+          type: string
+        trend_score:
+          type: number
+          format: float
+        growth_rate:
+          type: number
+          format: float
+        current_views:
+          type: integer
+        previous_views:
+          type: integer
+
+    FunnelAnalytics:
+      type: object
+      properties:
+        funnel_type:
+          type: string
+        period:
+          type: string
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              step_name:
+                type: string
+              user_count:
+                type: integer
+              conversion_rate:
+                type: number
+                format: float
+              drop_off_rate:
+                type: number
+                format: float
+        total_users:
+          type: integer
+        overall_conversion_rate:
+          type: number
+          format: float
+
+    HeatmapData:
+      type: object
+      properties:
+        page_url:
+          type: string
+        period:
+          type: string
+        click_data:
+          type: array
+          items:
+            type: object
+            properties:
+              x:
+                type: integer
+              y:
+                type: integer
+              intensity:
+                type: number
+                format: float
+        scroll_data:
+          type: object
+          properties:
+            average_depth:
+              type: number
+              format: float
+            depth_distribution:
+              type: array
+              items:
+                type: object
+                properties:
+                  depth_range:
+                    type: string
+                  user_count:
+                    type: integer
+
+    SessionAnalytics:
+      type: object
+      properties:
+        period:
+          type: string
+        segment:
+          type: string
+        total_sessions:
+          type: integer
+        average_session_duration:
+          type: number
+          format: float
+        bounce_rate:
+          type: number
+          format: float
+        pages_per_session:
+          type: number
+          format: float
+        new_vs_returning:
+          type: object
+          properties:
+            new_users:
+              type: integer
+            returning_users:
+              type: integer
+
+    RevenueSummary:
+      type: object
+      properties:
+        period:
+          type: string
+        total_revenue:
+          type: number
+          format: decimal
+        total_orders:
+          type: integer
+        average_order_value:
+          type: number
+          format: decimal
+        growth_rate:
+          type: number
+          format: float
+        previous_period:
+          type: object
+          properties:
+            total_revenue:
+              type: number
+              format: decimal
+            total_orders:
+              type: integer
+            average_order_value:
+              type: number
+              format: decimal
+
+    GameRevenue:
+      type: object
+      properties:
+        game_id:
+          type: integer
+        game_name:
+          type: string
+        revenue:
+          type: number
+          format: decimal
+        units_sold:
+          type: integer
+        average_price:
+          type: number
+          format: decimal
+        growth_rate:
+          type: number
+          format: float
+
+    DashboardKPIs:
+      type: object
+      properties:
+        period:
+          type: string
+        timestamp:
+          type: string
+          format: datetime
+        metrics:
+          type: object
+          properties:
+            active_users:
+              type: integer
+            page_views:
+              type: integer
+            conversion_rate:
+              type: number
+              format: float
+            revenue:
+              type: number
+              format: decimal
+            average_session_duration:
+              type: number
+              format: float
+            bounce_rate:
+              type: number
+              format: float
+
+    ChartData:
+      type: object
+      properties:
+        chart_type:
+          type: string
+        period:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: datetime
+              value:
+                type: number
+              label:
+                type: string
+        metadata:
+          type: object
+          properties:
+            total:
+              type: number
+            average:
+              type: number
+            trend:
+              type: string
+              enum: [up, down, stable]
+
+    UserSegmentReport:
+      type: object
+      properties:
+        segment_type:
+          type: string
+        period:
+          type: string
+        segments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              user_count:
+                type: integer
+              percentage:
+                type: number
+                format: float
+              revenue:
+                type: number
+                format: decimal
+              characteristics:
+                type: object
+
+    AlertRule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        metric:
+          type: string
+        condition:
+          type: string
+          enum: [greater_than, less_than, equals, percentage_change]
+        threshold:
+          type: number
+        period:
+          type: string
+        enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: datetime
+
+    AlertRuleCreate:
+      type: object
+      required:
+        - name
+        - metric
+        - condition
+        - threshold
+        - period
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        metric:
+          type: string
+          enum: [active_users, conversion_rate, revenue, page_views, bounce_rate]
+        condition:
+          type: string
+          enum: [greater_than, less_than, equals, percentage_change]
+        threshold:
+          type: number
+        period:
+          type: string
+          enum: [5min, 15min, 1hour, 1day]
+        enabled:
+          type: boolean
+          default: true
+
+    DataExportRequest:
+      type: object
+      required:
+        - data_type
+        - period
+        - format
+      properties:
+        data_type:
+          type: string
+          enum: [events, analytics, revenue, users]
+        period:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        format:
+          type: string
+          enum: [csv, json, parquet]
+        filters:
+          type: object
+          nullable: true
+
+    ExportJobStatus:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [processing, completed, failed]
+        progress:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+        created_at:
+          type: string
+          format: datetime
+        completed_at:
+          type: string
+          format: datetime
+          nullable: true
+        download_url:
+          type: string
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          nullable: true

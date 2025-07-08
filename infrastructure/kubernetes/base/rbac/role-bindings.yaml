@@ -1,0 +1,233 @@
+# Role Bindings for Lugx Gaming Platform
+# Binds service accounts to their respective roles
+# Bindings must be created in each namespace for proper isolation
+
+# ==============================================
+# DEVELOPMENT ENVIRONMENT (lugx-dev)
+# ==============================================
+
+---
+# Bind Game Service account to its role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: game-service-binding
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/environment: development
+subjects:
+- kind: ServiceAccount
+  name: game-service-sa
+  namespace: lugx-dev
+roleRef:
+  kind: Role
+  name: game-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Bind Order Service account to its role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: order-service-binding
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/environment: development
+subjects:
+- kind: ServiceAccount
+  name: order-service-sa
+  namespace: lugx-dev
+roleRef:
+  kind: Role
+  name: order-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Bind Database admin account to its role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: database-admin-binding
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/environment: development
+subjects:
+- kind: ServiceAccount
+  name: database-sa
+  namespace: lugx-dev
+roleRef:
+  kind: Role
+  name: database-admin-role
+  apiGroup: rbac.authorization.k8s.io
+
+# ==============================================
+# STAGING ENVIRONMENT (lugx-staging)
+# ==============================================
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: game-service-binding
+  namespace: lugx-staging
+  labels:
+    app.kubernetes.io/environment: staging
+subjects:
+- kind: ServiceAccount
+  name: game-service-sa
+  namespace: lugx-staging
+roleRef:
+  kind: Role
+  name: game-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: order-service-binding
+  namespace: lugx-staging
+  labels:
+    app.kubernetes.io/environment: staging
+subjects:
+- kind: ServiceAccount
+  name: order-service-sa
+  namespace: lugx-staging
+roleRef:
+  kind: Role
+  name: order-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: database-admin-binding
+  namespace: lugx-staging
+  labels:
+    app.kubernetes.io/environment: staging
+subjects:
+- kind: ServiceAccount
+  name: database-sa
+  namespace: lugx-staging
+roleRef:
+  kind: Role
+  name: database-admin-role
+  apiGroup: rbac.authorization.k8s.io
+
+# ==============================================
+# PRODUCTION ENVIRONMENT (lugx-prod)
+# ==============================================
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: game-service-binding
+  namespace: lugx-prod
+  labels:
+    app.kubernetes.io/environment: production
+subjects:
+- kind: ServiceAccount
+  name: game-service-sa
+  namespace: lugx-prod
+roleRef:
+  kind: Role
+  name: game-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: order-service-binding
+  namespace: lugx-prod
+  labels:
+    app.kubernetes.io/environment: production
+subjects:
+- kind: ServiceAccount
+  name: order-service-sa
+  namespace: lugx-prod
+roleRef:
+  kind: Role
+  name: order-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: database-admin-binding
+  namespace: lugx-prod
+  labels:
+    app.kubernetes.io/environment: production
+subjects:
+- kind: ServiceAccount
+  name: database-sa
+  namespace: lugx-prod
+roleRef:
+  kind: Role
+  name: database-admin-role
+  apiGroup: rbac.authorization.k8s.io
+
+# ==============================================
+# CLUSTER-WIDE BINDINGS (ALL ENVIRONMENTS)
+# ==============================================
+
+---
+# Analytics Service can read from all namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: analytics-service-binding-dev
+subjects:
+- kind: ServiceAccount
+  name: analytics-service-sa
+  namespace: lugx-dev
+roleRef:
+  kind: ClusterRole
+  name: analytics-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: analytics-service-binding-staging
+subjects:
+- kind: ServiceAccount
+  name: analytics-service-sa
+  namespace: lugx-staging
+roleRef:
+  kind: ClusterRole
+  name: analytics-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: analytics-service-binding-prod
+subjects:
+- kind: ServiceAccount
+  name: analytics-service-sa
+  namespace: lugx-prod
+roleRef:
+  kind: ClusterRole
+  name: analytics-service-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Bind Monitoring account to cluster role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-binding
+subjects:
+- kind: ServiceAccount
+  name: monitoring-sa
+  namespace: lugx-monitoring
+roleRef:
+  kind: ClusterRole
+  name: monitoring-role
+  apiGroup: rbac.authorization.k8s.io

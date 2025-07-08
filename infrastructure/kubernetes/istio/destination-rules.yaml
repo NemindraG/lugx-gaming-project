@@ -1,0 +1,221 @@
+# Destination Rules for Lugx Gaming Platform
+# Defines load balancing, circuit breakers, and connection pooling
+
+---
+# Game Service Destination Rule
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: game-service-dr
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/name: lugx-gaming
+    app.kubernetes.io/component: traffic-policy
+spec:
+  host: game-service.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    # Load Balancing Strategy
+    loadBalancer:
+      simple: LEAST_CONN  # Route to pod with fewest active connections
+    
+    # Connection Pooling
+    connectionPool:
+      tcp:
+        maxConnections: 50
+        connectTimeout: 30s
+        keepAlive:
+          time: 600s
+          interval: 60s
+      http:
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 10
+        maxRetries: 3
+        idleTimeout: 60s
+        h2UpgradePolicy: UPGRADE
+    
+    # Circuit Breaker
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+
+---
+# Order Service Destination Rule (Enhanced for Financial Transactions)
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: order-service-dr
+  namespace: lugx-dev
+spec:
+  host: order-service.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    # Consistent Hashing for Session Affinity
+    loadBalancer:
+      consistentHash:
+        httpHeaderName: "x-user-id"  # Route same user to same pod
+    
+    # Enhanced Connection Pooling for High Transaction Volume
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 10s
+        keepAlive:
+          time: 300s
+          interval: 30s
+      http:
+        http1MaxPendingRequests: 200
+        http2MaxRequests: 200
+        maxRequestsPerConnection: 20
+        maxRetries: 2  # Fewer retries for financial operations
+        idleTimeout: 30s
+        useClientProtocol: true
+    
+    # Stricter Circuit Breaker for Financial Service
+    outlierDetection:
+      consecutiveGatewayErrors: 3  # Fail faster
+      consecutive5xxErrors: 3
+      interval: 15s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 30  # Keep more instances available
+      minHealthPercent: 50
+
+---
+# Analytics Service Destination Rule (Optimized for High Throughput)
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: analytics-service-dr
+  namespace: lugx-dev
+spec:
+  host: analytics-service.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    # Round Robin for Even Distribution
+    loadBalancer:
+      simple: ROUND_ROBIN
+    
+    # High Throughput Connection Pooling
+    connectionPool:
+      tcp:
+        maxConnections: 200
+        connectTimeout: 5s
+        keepAlive:
+          time: 1200s
+          interval: 120s
+      http:
+        http1MaxPendingRequests: 500
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 50
+        maxRetries: 1  # Analytics can tolerate some data loss
+        idleTimeout: 120s
+        h2UpgradePolicy: UPGRADE
+    
+    # Relaxed Circuit Breaker for Analytics
+    outlierDetection:
+      consecutiveGatewayErrors: 10
+      consecutive5xxErrors: 10
+      interval: 60s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 70
+      minHealthPercent: 20
+
+---
+# Frontend Destination Rule
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: frontend-dr
+  namespace: lugx-dev
+spec:
+  host: frontend.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 10s
+      http:
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 5
+        maxRetries: 3
+        idleTimeout: 60s
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+
+---
+# Database Services Destination Rules
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: postgres-game-dr
+  namespace: lugx-dev
+spec:
+  host: postgres-game.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 20  # Limit database connections
+        connectTimeout: 5s
+        keepAlive:
+          time: 3600s
+          interval: 300s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: postgres-order-dr
+  namespace: lugx-dev
+spec:
+  host: postgres-order.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50  # Higher for transaction volume
+        connectTimeout: 5s
+        keepAlive:
+          time: 3600s
+          interval: 300s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: clickhouse-dr
+  namespace: lugx-dev
+spec:
+  host: clickhouse.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 30
+        connectTimeout: 10s
+        keepAlive:
+          time: 1800s
+          interval: 180s
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: redis-dr
+  namespace: lugx-dev
+spec:
+  host: redis.lugx-dev.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 3s
+        keepAlive:
+          time: 300s
+          interval: 30s

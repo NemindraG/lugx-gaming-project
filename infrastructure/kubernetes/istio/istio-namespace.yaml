@@ -1,0 +1,11 @@
+# Istio System Namespace and Configuration
+# Prepares namespace for Istio installation
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: istio-system
+  labels:
+    istio-injection: disabled
+    app.kubernetes.io/name: istio
+    app.kubernetes.io/component: control-plane
