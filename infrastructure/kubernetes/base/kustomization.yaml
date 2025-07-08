@@ -25,3 +25,10 @@ resources:
   
   # Storage
   - storage/storage-classes.yaml
+  
+  # Configuration
+  - configs/database-secrets.yaml
+  
+  # Deployments
+  - deployments/game-service-deployment.yaml
+  - deployments/order-service-deployment.yaml
