@@ -3,7 +3,8 @@ Repository Manager
 Provides unified access to all repositories with transaction management.
 """
 
-from typing import Optional
+from typing import Optional, Any
+from types import TracebackType
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.game_repository import GameRepository
@@ -56,7 +57,7 @@ class RepositoryManager:
         """Flush changes without committing."""
         await self.session.flush()
 
-    async def refresh(self, instance):
+    async def refresh(self, instance: Any) -> None:
         """Refresh an instance from the database."""
         await self.session.refresh(instance)
 
@@ -68,7 +69,7 @@ class RepositoryManager:
         """Async context manager entry."""
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[BaseException], exc_tb: Optional[TracebackType]) -> None:
         """Async context manager exit."""
         if exc_type is not None:
             await self.rollback()

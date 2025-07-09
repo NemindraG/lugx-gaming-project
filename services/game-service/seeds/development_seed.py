@@ -10,12 +10,12 @@ import sys
 from datetime import date
 from decimal import Decimal
 from uuid import uuid4
+from typing import List, Dict, Any
 
 # Add the parent directory to Python path to import app modules
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from app.models.game import Publisher, Category, Game, GameCategory, Inventory, Review
 
 # Database configuration
@@ -25,7 +25,7 @@ DATABASE_URL = os.getenv(
 )
 
 # Seed data
-PUBLISHERS_DATA = [
+PUBLISHERS_DATA: List[Dict[str, Any]] = [
     {
         "name": "Epic Games",
         "slug": "epic-games",
@@ -68,7 +68,7 @@ PUBLISHERS_DATA = [
     },
 ]
 
-CATEGORIES_DATA = [
+CATEGORIES_DATA: List[Dict[str, Any]] = [
     # Main categories
     {
         "name": "Action",
@@ -121,7 +121,7 @@ CATEGORIES_DATA = [
 ]
 
 # Sub-categories will be added with parent relationships
-SUB_CATEGORIES_DATA = [
+SUB_CATEGORIES_DATA: List[Dict[str, Any]] = [
     # Action sub-categories
     {
         "name": "First-Person Shooter",
@@ -173,7 +173,7 @@ SUB_CATEGORIES_DATA = [
     },
 ]
 
-GAMES_DATA = [
+GAMES_DATA: List[Dict[str, Any]] = [
     {
         "title": "Fortnite",
         "slug": "fortnite",
@@ -319,7 +319,7 @@ async def create_seed_data():
 
     # Create async engine and session
     engine = create_async_engine(DATABASE_URL, echo=True)
-    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+    async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session() as session:
         try:
@@ -360,12 +360,12 @@ async def create_seed_data():
             # Create sub-categories
             print("🏷️  Creating sub-categories...")
             for sub_cat_data in SUB_CATEGORIES_DATA:
-                parent_category = category_objects[sub_cat_data["parent"]]
+                parent_category = category_objects[sub_cat_data["parent"]]  # type: ignore
                 sub_category = Category(
                     id=uuid4(),
                     name=sub_cat_data["name"],
                     slug=sub_cat_data["slug"],
-                    parent_id=parent_category.id,
+                    parent_id=parent_category.id,  # type: ignore
                     display_order=sub_cat_data["display_order"],
                 )
                 session.add(sub_category)
@@ -377,14 +377,14 @@ async def create_seed_data():
             print("🎮 Creating games...")
             game_objects = {}
             for game_data in GAMES_DATA:
-                publisher = publisher_objects[game_data["publisher"]]
+                publisher = publisher_objects[game_data["publisher"]]  # type: ignore
                 game = Game(
                     id=uuid4(),
                     title=game_data["title"],
                     slug=game_data["slug"],
                     description=game_data["description"],
                     short_description=game_data["short_description"],
-                    publisher_id=publisher.id,
+                    publisher_id=publisher.id,  # type: ignore
                     release_date=game_data["release_date"],
                     price=game_data["price"],
                     discount_percentage=game_data["discount_percentage"],
@@ -403,26 +403,26 @@ async def create_seed_data():
             # Create game-category associations
             print("🔗 Creating game-category associations...")
             for game_data in GAMES_DATA:
-                game = game_objects[game_data["slug"]]
+                game = game_objects[game_data["slug"]]  # type: ignore
                 for i, category_slug in enumerate(game_data["categories"]):
                     if category_slug in category_objects:
-                        category = category_objects[category_slug]
+                        category = category_objects[category_slug]  # type: ignore
                         game_category = GameCategory(
-                            game_id=game.id,
-                            category_id=category.id,
+                            game_id=game.id,  # type: ignore
+                            category_id=category.id,  # type: ignore
                             is_primary=(i == 0),  # First category is primary
                         )
                         session.add(game_category)
 
             # Create inventory for all games
             print("📦 Creating inventory...")
-            for game_slug, game in game_objects.items():
+            for _, game in game_objects.items():
                 # Digital inventory (unlimited for most games)
                 digital_inventory = Inventory(
                     id=uuid4(),
-                    game_id=game.id,
+                    game_id=game.id,  # type: ignore
                     quantity_available=(
-                        999999 if game.price > 0 else 999999
+                        999999 if game.price > 0 else 999999  # type: ignore
                     ),  # Unlimited for free-to-play
                     quantity_reserved=0,
                     inventory_type="digital",
@@ -434,10 +434,10 @@ async def create_seed_data():
                 session.add(digital_inventory)
 
                 # Physical inventory for some games
-                if game.price > 20:  # Only expensive games have physical copies
+                if game.price > 20:  # Only expensive games have physical copies  # type: ignore
                     physical_inventory = Inventory(
                         id=uuid4(),
-                        game_id=game.id,
+                        game_id=game.id,  # type: ignore
                         quantity_available=50,
                         quantity_reserved=5,
                         inventory_type="physical",
@@ -452,9 +452,9 @@ async def create_seed_data():
             print("⭐ Creating reviews...")
             sample_user_ids = [uuid4() for _ in range(10)]  # Simulate 10 users
 
-            for game_slug, game in game_objects.items():
+            for _, game in game_objects.items():
                 # Create 2-5 reviews per game
-                num_reviews = min(5, max(2, int(game.trending_score / 20)))
+                num_reviews = min(5, max(2, int(game.trending_score / 20)))  # type: ignore
                 for i in range(num_reviews):
                     user_id = sample_user_ids[i % len(sample_user_ids)]
                     # Check if this user already reviewed this game
@@ -463,7 +463,7 @@ async def create_seed_data():
                             r
                             for r in session.new
                             if isinstance(r, Review)
-                            and r.game_id == game.id
+                            and r.game_id == game.id  # type: ignore
                             and r.user_id == user_id
                         ]
                     )
@@ -472,13 +472,13 @@ async def create_seed_data():
                             1,
                             min(
                                 5,
-                                int((game.metacritic_score or 75) / 20)
+                                int((game.metacritic_score or 75) / 20)  # type: ignore
                                 + (-1 if i % 3 == 0 else 0 if i % 2 == 0 else 1),
                             ),
                         )
                         review = Review(
                             id=uuid4(),
-                            game_id=game.id,
+                            game_id=game.id,  # type: ignore
                             user_id=user_id,
                             rating=rating,
                             title=(

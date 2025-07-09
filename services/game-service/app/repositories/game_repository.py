@@ -10,6 +10,7 @@ from decimal import Decimal
 from sqlalchemy import select, and_, or_, func, text
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.game import Game, Category, Publisher, GameCategory, Inventory, Review
 from app.repositories.base_repository import BaseRepository
@@ -18,10 +19,10 @@ from app.repositories.base_repository import BaseRepository
 class GameRepository(BaseRepository[Game]):
     """Repository for game entities with specialized gaming queries."""
 
-    def __init__(self, session):
+    def __init__(self, session: AsyncSession):
         super().__init__(session, Game)
 
-    def _apply_default_relationships(self, query: Select) -> Select:
+    def _apply_default_relationships(self, query: Select[Any]) -> Select[Any]:
         """Load default relationships for games."""
         return query.options(
             selectinload(Game.publisher),
@@ -87,7 +88,7 @@ class GameRepository(BaseRepository[Game]):
         query = query.order_by(Game.trending_score.desc(), Game.created_at.desc())
 
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_featured_games(self, limit: int = 10) -> List[Game]:
         """Get featured games for homepage."""
@@ -100,7 +101,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_trending_games(self, limit: int = 20) -> List[Game]:
         """Get trending games based on trending score."""
@@ -113,7 +114,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_games_on_sale(self, limit: int = 50) -> List[Game]:
         """Get games currently on sale."""
@@ -126,7 +127,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_games_by_category(
         self,
@@ -158,7 +159,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_games_by_publisher(
         self, publisher_slug: str, limit: int = 50, offset: int = 0
@@ -175,7 +176,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_similar_games(self, game_id: UUID, limit: int = 10) -> List[Game]:
         """Get similar games based on categories and publisher."""
@@ -209,7 +210,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_new_releases(self, days: int = 30, limit: int = 20) -> List[Game]:
         """Get recently released games."""
@@ -224,7 +225,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_games_with_inventory(
         self, inventory_type: str = "digital", in_stock_only: bool = True
@@ -246,7 +247,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_games_by_price_range(
         self, min_price: Decimal, max_price: Decimal, limit: int = 50
@@ -267,7 +268,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_top_rated_games(self, limit: int = 20) -> List[Game]:
         """Get top-rated games based on reviews."""
@@ -283,7 +284,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def get_games_by_metacritic_score(
         self, min_score: int = 80, limit: int = 30
@@ -298,7 +299,7 @@ class GameRepository(BaseRepository[Game]):
 
         query = self._apply_default_relationships(query)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def update_trending_score(self, game_id: UUID, score: int) -> Optional[Game]:
         """Update a game's trending score."""
@@ -310,13 +311,13 @@ class GameRepository(BaseRepository[Game]):
             select(
                 func.count(Game.id).label("total_games"),
                 func.count(Game.id)
-                .filter(Game.status == "active")
+                .filter(Game.status == "active")  # type: ignore
                 .label("active_games"),
                 func.count(Game.id)
-                .filter(Game.featured.is_(True))
+                .filter(Game.featured.is_(True))  # type: ignore
                 .label("featured_games"),
                 func.count(Game.id)
-                .filter(Game.discount_percentage > 0)
+                .filter(Game.discount_percentage > 0)  # type: ignore
                 .label("games_on_sale"),
                 func.avg(Game.price).label("average_price"),
                 func.avg(Game.metacritic_score).label("average_metacritic"),
@@ -324,13 +325,22 @@ class GameRepository(BaseRepository[Game]):
         )
 
         stats = result.first()
+        if not stats:
+            return {
+                "total_games": 0,
+                "active_games": 0,
+                "featured_games": 0,
+                "games_on_sale": 0,
+                "average_price": 0.0,
+                "average_metacritic": 0.0,
+            }
         return {
-            "total_games": stats.total_games,
-            "active_games": stats.active_games,
-            "featured_games": stats.featured_games,
-            "games_on_sale": stats.games_on_sale,
-            "average_price": float(stats.average_price) if stats.average_price else 0,
+            "total_games": stats.total_games or 0,
+            "active_games": stats.active_games or 0,
+            "featured_games": stats.featured_games or 0,
+            "games_on_sale": stats.games_on_sale or 0,
+            "average_price": float(stats.average_price) if stats.average_price else 0.0,
             "average_metacritic": (
-                float(stats.average_metacritic) if stats.average_metacritic else 0
+                float(stats.average_metacritic) if stats.average_metacritic else 0.0
             ),
         }

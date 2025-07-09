@@ -55,6 +55,7 @@ Before writing any code, you must:
 - Validate understanding before coding
 - Read all the plan documents before starting a new phase
 - Verify if everything in line with the plan end of each phase
+- Always Use ide - getDiagnostics (MCP) for error checking when the file is specified
 
 ---
 

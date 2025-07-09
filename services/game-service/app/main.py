@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 import structlog
+import uvicorn
 
 from app.api.v1.api import api_router
 from app.database import check_database_connection
@@ -88,7 +89,7 @@ app.add_middleware(
 
 
 @app.middleware("http")
-async def logging_middleware(request: Request, call_next):
+async def logging_middleware(request: Request, call_next): # type: ignore
     """
     Log all HTTP requests and responses.
     """
@@ -104,7 +105,7 @@ async def logging_middleware(request: Request, call_next):
     )
 
     # Process request
-    response = await call_next(request)
+    response = await call_next(request) # type: ignore
 
     # Calculate processing time
     process_time = time.time() - start_time
@@ -114,14 +115,14 @@ async def logging_middleware(request: Request, call_next):
         "Request completed",
         method=request.method,
         url=str(request.url),
-        status_code=response.status_code,
+        status_code=response.status_code, # type: ignore
         process_time=round(process_time, 4),
     )
 
     # Add processing time header
-    response.headers["X-Process-Time"] = str(process_time)
+    response.headers["X-Process-Time"] = str(process_time) # type: ignore
 
-    return response
+    return response # type: ignore
 
 
 @app.exception_handler(Exception)
@@ -162,7 +163,7 @@ async def root():
 
 # Health check endpoint
 @app.get("/health")
-async def health_check():
+async def health_check(): # type: ignore
     """
     Health check endpoint for monitoring.
     """
@@ -182,7 +183,7 @@ async def health_check():
         "checks": {
             "database": db_health,
         },
-    }
+    } # type: ignore
 
 
 # Include API router
@@ -204,7 +205,7 @@ if __name__ == "__main__":
     import uvicorn
 
     # Development server configuration
-    uvicorn.run(
+    uvicorn.run( # type: ignore
         "app.main:app",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "8001")),

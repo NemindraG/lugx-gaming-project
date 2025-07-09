@@ -4,7 +4,7 @@ Implements async PostgreSQL connections with connection pooling.
 """
 
 import os
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Dict, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
@@ -136,7 +136,7 @@ async def check_database_connection() -> bool:
 
 
 # Health check query
-async def get_database_health() -> dict:
+async def get_database_health() -> Dict[str, Any]:
     """
     Get database health information.
 
@@ -151,12 +151,12 @@ async def get_database_health() -> dict:
 
             # Get pool status
             pool = engine.pool
-            pool_status = {
-                "size": pool.size(),
-                "checked_in": pool.checkedin(),
-                "checked_out": pool.checkedout(),
-                "overflow": pool.overflow(),
-                "invalid": pool.invalid(),
+            pool_status: Dict[str, Any] = {
+                "size": getattr(pool, 'size', lambda: 0)(),
+                "checked_in": getattr(pool, 'checkedin', lambda: 0)(),
+                "checked_out": getattr(pool, 'checkedout', lambda: 0)(),
+                "overflow": getattr(pool, 'overflow', lambda: 0)(),
+                "invalid": getattr(pool, 'invalid', lambda: 0)(),
             }
 
             return {

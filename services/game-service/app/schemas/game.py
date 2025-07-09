@@ -5,7 +5,7 @@ Defines request/response models with validation.
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field, validator, root_validator
@@ -26,7 +26,7 @@ class PublisherBase(BaseSchema):
     """Base publisher schema."""
 
     name: str = Field(..., min_length=1, max_length=255)
-    slug: str = Field(..., min_length=1, max_length=255, regex=r"^[a-z0-9-]+$")
+    slug: str = Field(..., min_length=1, max_length=255, pattern=r"^[a-z0-9-]+$")
     description: Optional[str] = None
     website: Optional[str] = Field(None, max_length=500)
     logo_url: Optional[str] = Field(None, max_length=500)
@@ -45,7 +45,7 @@ class PublisherUpdate(BaseSchema):
 
     name: Optional[str] = Field(None, min_length=1, max_length=255)
     slug: Optional[str] = Field(
-        None, min_length=1, max_length=255, regex=r"^[a-z0-9-]+$"
+        None, min_length=1, max_length=255, pattern=r"^[a-z0-9-]+$"
     )
     description: Optional[str] = None
     website: Optional[str] = Field(None, max_length=500)
@@ -69,7 +69,7 @@ class CategoryBase(BaseSchema):
     """Base category schema."""
 
     name: str = Field(..., min_length=1, max_length=100)
-    slug: str = Field(..., min_length=1, max_length=100, regex=r"^[a-z0-9-]+$")
+    slug: str = Field(..., min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$")
     description: Optional[str] = None
     icon_url: Optional[str] = Field(None, max_length=500)
     parent_id: Optional[UUID] = None
@@ -87,7 +87,7 @@ class CategoryUpdate(BaseSchema):
 
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     slug: Optional[str] = Field(
-        None, min_length=1, max_length=100, regex=r"^[a-z0-9-]+$"
+        None, min_length=1, max_length=100, pattern=r"^[a-z0-9-]+$"
     )
     description: Optional[str] = None
     icon_url: Optional[str] = Field(None, max_length=500)
@@ -111,7 +111,7 @@ class GameBase(BaseSchema):
     """Base game schema."""
 
     title: str = Field(..., min_length=1, max_length=255)
-    slug: str = Field(..., min_length=1, max_length=255, regex=r"^[a-z0-9-]+$")
+    slug: str = Field(..., min_length=1, max_length=255, pattern=r"^[a-z0-9-]+$")
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
     publisher_id: UUID
@@ -123,14 +123,14 @@ class GameBase(BaseSchema):
     trailer_url: Optional[str] = Field(None, max_length=500)
     screenshots: List[str] = Field(default_factory=list)
     platform: List[str] = Field(default_factory=list)
-    system_requirements: dict = Field(default_factory=dict)
+    system_requirements: Dict[str, Any] = Field(default_factory=dict)
     age_rating: Optional[str] = Field(None, max_length=10)
     metacritic_score: Optional[int] = Field(None, ge=0, le=100)
     featured: bool = False
     trending_score: int = Field(0, ge=0)
 
     @validator("platform")
-    def validate_platforms(cls, v):
+    def validate_platforms(cls, v: List[str]) -> List[str]:
         """Validate platform list."""
         valid_platforms = {
             "PC",
@@ -147,7 +147,7 @@ class GameBase(BaseSchema):
         return v
 
     @validator("age_rating")
-    def validate_age_rating(cls, v):
+    def validate_age_rating(cls, v: Optional[str]) -> Optional[str]:
         """Validate age rating."""
         if v is not None:
             valid_ratings = {"E", "E10+", "T", "M", "AO", "RP"}
@@ -155,8 +155,8 @@ class GameBase(BaseSchema):
                 raise ValueError(f"Invalid age rating: {v}")
         return v
 
-    @root_validator
-    def validate_discount(cls, values):
+    @root_validator(pre=True)
+    def validate_discount(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Validate discount logic."""
         price = values.get("price")
         discount = values.get("discount_percentage", 0)
@@ -173,8 +173,8 @@ class GameCreate(GameBase):
     category_ids: List[UUID] = Field(default_factory=list)
     primary_category_id: Optional[UUID] = None
 
-    @root_validator
-    def validate_categories(cls, values):
+    @root_validator(pre=True)
+    def validate_categories(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Validate category assignment."""
         category_ids = values.get("category_ids", [])
         primary_category_id = values.get("primary_category_id")
@@ -190,7 +190,7 @@ class GameUpdate(BaseSchema):
 
     title: Optional[str] = Field(None, min_length=1, max_length=255)
     slug: Optional[str] = Field(
-        None, min_length=1, max_length=255, regex=r"^[a-z0-9-]+$"
+        None, min_length=1, max_length=255, pattern=r"^[a-z0-9-]+$"
     )
     description: Optional[str] = None
     short_description: Optional[str] = Field(None, max_length=500)
@@ -203,7 +203,7 @@ class GameUpdate(BaseSchema):
     trailer_url: Optional[str] = Field(None, max_length=500)
     screenshots: Optional[List[str]] = None
     platform: Optional[List[str]] = None
-    system_requirements: Optional[dict] = None
+    system_requirements: Optional[Dict[str, Any]] = None
     age_rating: Optional[str] = Field(None, max_length=10)
     metacritic_score: Optional[int] = Field(None, ge=0, le=100)
     status: Optional[str] = None
@@ -213,7 +213,7 @@ class GameUpdate(BaseSchema):
     primary_category_id: Optional[UUID] = None
 
     @validator("status")
-    def validate_status(cls, v):
+    def validate_status(cls, v: Optional[str]) -> Optional[str]:
         """Validate game status."""
         if v is not None:
             valid_statuses = {"active", "inactive", "discontinued"}
@@ -265,15 +265,15 @@ class InventoryBase(BaseSchema):
     max_per_order: int = Field(5, ge=1)
 
     @validator("inventory_type")
-    def validate_inventory_type(cls, v):
+    def validate_inventory_type(cls, v: str) -> str:
         """Validate inventory type."""
         valid_types = {"digital", "physical"}
         if v not in valid_types:
             raise ValueError(f"Invalid inventory type: {v}")
         return v
 
-    @root_validator
-    def validate_quantities(cls, values):
+    @root_validator(pre=True)
+    def validate_quantities(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Validate quantity logic."""
         available = values.get("quantity_available", 0)
         reserved = values.get("quantity_reserved", 0)
@@ -368,7 +368,7 @@ class ReviewListResponse(BaseSchema):
     per_page: int
     pages: int
     average_rating: float
-    rating_distribution: dict  # {1: count, 2: count, ...}
+    rating_distribution: Dict[int, int]  # {1: count, 2: count, ...}
 
 
 # Search and filter schemas
@@ -387,14 +387,14 @@ class GameSearchRequest(BaseSchema):
     in_stock_only: bool = True
     sort_by: str = Field(
         "created_at",
-        regex=r"^(title|price|release_date|created_at|rating|trending_score)$",
+        pattern=r"^(title|price|release_date|created_at|rating|trending_score)$",
     )
-    sort_order: str = Field("desc", regex=r"^(asc|desc)$")
+    sort_order: str = Field("desc", pattern=r"^(asc|desc)$")
     page: int = Field(1, ge=1)
     per_page: int = Field(20, ge=1, le=100)
 
-    @root_validator
-    def validate_price_range(cls, values):
+    @root_validator(pre=True)
+    def validate_price_range(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Validate price range."""
         min_price = values.get("min_price")
         max_price = values.get("max_price")
@@ -412,8 +412,8 @@ class HealthCheckResponse(BaseSchema):
     status: str
     service: str = "game-service"
     version: str
-    database: dict
-    dependencies: dict
+    database: Dict[str, Any]
+    dependencies: Dict[str, Any]
 
 
 # Update forward references

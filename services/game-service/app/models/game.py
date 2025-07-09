@@ -5,7 +5,7 @@ Implements the complete database schema with async support.
 
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -155,7 +155,7 @@ class Game(Base):
 
     # Metadata
     platform: Mapped[List[str]] = mapped_column(ARRAY(Text), default=list)
-    system_requirements: Mapped[Optional[dict]] = mapped_column(JSONB, default=dict)
+    system_requirements: Mapped[Optional[Dict[str, Any]]] = mapped_column(JSONB, default=dict)
     age_rating: Mapped[Optional[str]] = mapped_column(String(10))  # E, T, M, etc.
     metacritic_score: Mapped[Optional[int]] = mapped_column(Integer)
 

@@ -6,7 +6,7 @@ High-performance client optimized for web analytics and real-time data processin
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
@@ -21,7 +21,7 @@ class WebEvent(BaseModel):
 
     event_id: str = Field(default_factory=lambda: str(uuid4()))
     event_type: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     session_id: str
     user_id: Optional[str] = None
 
@@ -88,7 +88,7 @@ class ClickHouseClient:
         # Event batching
         self._event_buffer: List[WebEvent] = []
         self._buffer_lock = asyncio.Lock()
-        self._flush_task: Optional[asyncio.Task] = None
+        self._flush_task: Optional[asyncio.Task[None]] = None
 
         # Connection management
         self._session: Optional[aiohttp.ClientSession] = None
@@ -104,7 +104,7 @@ class ClickHouseClient:
         await self.connect()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, _exc_type: Any, _exc_val: Any, _exc_tb: Any):
         """Async context manager exit."""
         await self.close()
 
@@ -147,6 +147,8 @@ class ClickHouseClient:
     async def ping(self) -> bool:
         """Test connection to ClickHouse."""
         try:
+            if not self._session:
+                return False
             async with self._session.get(f"{self.base_url}/ping") as response:
                 return response.status == 200
         except Exception as e:
@@ -154,8 +156,8 @@ class ClickHouseClient:
             return False
 
     async def execute_query(
-        self, query: str, params: Optional[Dict] = None
-    ) -> List[Dict]:
+        self, query: str, params: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
         """Execute a query and return results."""
         try:
             data = {"query": query, "default_format": "JSONEachRow"}
@@ -163,6 +165,8 @@ class ClickHouseClient:
             if params:
                 data.update(params)
 
+            if not self._session:
+                raise Exception("Session not initialized")
             async with self._session.post(f"{self.base_url}/", data=data) as response:
                 if response.status == 200:
                     content = await response.text()
@@ -195,9 +199,9 @@ class ClickHouseClient:
 
         try:
             # Prepare data for insertion
-            rows = []
+            rows: List[Dict[str, Any]] = []
             for event in events:
-                row = {
+                row: Dict[str, Any] = {
                     "event_id": event.event_id,
                     "event_type": event.event_type,
                     "timestamp": event.timestamp.strftime("%Y-%m-%d %H:%M:%S.%f"),
@@ -234,6 +238,8 @@ class ClickHouseClient:
             # Prepare data
             data = "\n".join(json.dumps(row) for row in rows)
 
+            if not self._session:
+                raise Exception("Session not initialized")
             async with self._session.post(
                 f"{self.base_url}/",
                 data=query + "\n" + data,
@@ -251,18 +257,18 @@ class ClickHouseClient:
             logger.error(f"Batch insert failed: {e}")
             return False
 
-    async def get_real_time_metrics(self, time_window: str = "1h") -> Dict:
+    async def get_real_time_metrics(self, time_window: str = "1h") -> Dict[str, Any]:
         """Get real-time analytics for dashboards."""
         try:
             # Parse time window
             if time_window.endswith("h"):
                 hours = int(time_window[:-1])
-                start_time = datetime.utcnow() - timedelta(hours=hours)
+                start_time = datetime.now(timezone.utc) - timedelta(hours=hours)
             elif time_window.endswith("m"):
                 minutes = int(time_window[:-1])
-                start_time = datetime.utcnow() - timedelta(minutes=minutes)
+                start_time = datetime.now(timezone.utc) - timedelta(minutes=minutes)
             else:
-                start_time = datetime.utcnow() - timedelta(hours=1)
+                start_time = datetime.now(timezone.utc) - timedelta(hours=1)
 
             query = f"""
                 SELECT
@@ -284,12 +290,12 @@ class ClickHouseClient:
             logger.error(f"Real-time metrics query failed: {e}")
             return {}
 
-    async def track_conversion_funnel(self, funnel_steps: List[str]) -> Dict:
+    async def track_conversion_funnel(self, funnel_steps: List[str]) -> Dict[str, Any]:
         """Analyze conversion rates through funnel steps."""
         try:
             # Build funnel query
-            funnel_conditions = []
-            for i, step in enumerate(funnel_steps):
+            funnel_conditions: List[str] = []
+            for _, step in enumerate(funnel_steps):
                 funnel_conditions.append(f"event_type = '{step}'")
 
             query = f"""
@@ -308,7 +314,7 @@ class ClickHouseClient:
             logger.error(f"Funnel analysis failed: {e}")
             return {}
 
-    async def get_user_journey(self, session_id: str) -> List[Dict]:
+    async def get_user_journey(self, session_id: str) -> List[Dict[str, Any]]:
         """Reconstruct complete user journey for session."""
         try:
             query = f"""
@@ -330,7 +336,7 @@ class ClickHouseClient:
             logger.error(f"User journey query failed: {e}")
             return []
 
-    async def get_popular_content(self, limit: int = 10) -> List[Dict]:
+    async def get_popular_content(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get trending games and pages."""
         try:
             query = f"""
@@ -353,7 +359,7 @@ class ClickHouseClient:
             logger.error(f"Popular content query failed: {e}")
             return []
 
-    async def get_user_engagement_metrics(self) -> Dict:
+    async def get_user_engagement_metrics(self) -> Dict[str, Any]:
         """Get user engagement and session metrics."""
         try:
             query = f"""
@@ -480,7 +486,7 @@ async def create_clickhouse_client(
     database: str = "lugx_analytics",
     user: str = "analytics_service",
     password: str = "analytics_secure_password_2024",
-    **kwargs,
+    **kwargs: Any,
 ) -> ClickHouseClient:
     """Create and initialize a ClickHouse client."""
     client = ClickHouseClient(

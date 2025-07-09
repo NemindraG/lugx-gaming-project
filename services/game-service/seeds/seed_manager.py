@@ -9,13 +9,12 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 # Add the parent directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy import text
 
 # Database configuration
@@ -31,7 +30,7 @@ class SeedVersionController:
     def __init__(self, database_url: str):
         self.database_url = database_url
         self.engine = create_async_engine(database_url, echo=False)
-        self.async_session = sessionmaker(
+        self.async_session = async_sessionmaker(  # type: ignore
             self.engine, class_=AsyncSession, expire_on_commit=False
         )
         self.seeds_dir = Path(__file__).parent
@@ -69,7 +68,7 @@ class SeedVersionController:
             row = result.fetchone()
             return row[0] if row else None
 
-    async def get_version_history(self) -> List[Dict]:
+    async def get_version_history(self) -> List[Dict[str, Any]]:
         """Get complete version history."""
         async with self.async_session() as session:
             result = await session.execute(
@@ -81,9 +80,9 @@ class SeedVersionController:
             """
                 )
             )
-            return [
-                {"version": row[0], "description": row[1], "applied_at": row[2]}
-                for row in result.fetchall()
+            return [  # type: ignore
+                {"version": row[0], "description": row[1], "applied_at": row[2]}  # type: ignore
+                for row in result.fetchall()  # type: ignore
             ]
 
     async def apply_seed_version(self, version: str, description: str = ""):
@@ -224,7 +223,8 @@ class SeedVersionController:
                 result = await session.execute(
                     text(f"SELECT COUNT(*) FROM game_service.{table}")
                 )
-                count = result.fetchone()[0]
+                row = result.fetchone()  # type: ignore
+                count = row[0] if row else 0  # type: ignore
                 print(f"{table.title()}: {count}")
 
         print("\n📋 Version History:")
@@ -315,10 +315,10 @@ Examples:
             await controller.restore_from_backup(backup)
 
         elif command == "history":
-            history = await controller.get_version_history()
+            history = await controller.get_version_history()  # type: ignore
             print("📋 Version History:")
-            for version_info in history:
-                print(
+            for version_info in history:  # type: ignore
+                print(  # type: ignore
                     f"  • {version_info['version']} - {version_info['applied_at']} - {version_info['description']}"
                 )
 

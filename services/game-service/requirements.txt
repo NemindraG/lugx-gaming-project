@@ -30,6 +30,11 @@ pytest-asyncio==0.21.1
 pytest-mock==3.12.0
 httpx==0.25.2  # For testing FastAPI
 
+# Type checking
+mypy==1.7.1
+types-redis==4.6.0.11
+types-requests==2.31.0.10
+
 # Security
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
