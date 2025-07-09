@@ -44,7 +44,8 @@ Before writing any code, you must:
 - Ignore system integration concerns
 - Assume prior knowledge without verification
 - Never Create uneccessory files without asking. I dont want to stuff my codebase. it will be confusing.
-- Do not create any update files, README files, or documentation files unless explicitly requested.
+- Create any update files, README files, or documentation files unless explicitly requested.
+- Create reademe files for each implementation. it is not necessory.
 
 ### ✅ **Always Do This:**
 - Begin with conceptual overview

@@ -83,8 +83,8 @@ class Category(Base):
     )
 
     # Self-referential relationship
-    parent: Mapped[Optional["Category"]] = relationship("Category", remote_side=[id])
-    children: Mapped[List["Category"]] = relationship("Category")
+    parent: Mapped[Optional["Category"]] = relationship("Category", remote_side=[id], back_populates="children")
+    children: Mapped[List["Category"]] = relationship("Category", back_populates="parent")
 
     def __repr__(self) -> str:
         return f"<Category(id={self.id}, name='{self.name}')>"
@@ -154,13 +154,15 @@ class Game(Base):
 
     # Relationships
     publisher: Mapped["Publisher"] = relationship("Publisher", back_populates="games")
-    categories: Mapped[List["Category"]] = relationship(
-        "Category", 
-        secondary="game_service.game_categories",
-        back_populates=None
-    )
+    game_categories: Mapped[List["GameCategory"]] = relationship("GameCategory", back_populates="game")
+    
     inventory: Mapped[List["Inventory"]] = relationship("Inventory", back_populates="game")
     reviews: Mapped[List["Review"]] = relationship("Review", back_populates="game")
+    
+    @property
+    def categories(self) -> List["Category"]:
+        """Get categories for this game through the association object."""
+        return [gc.category for gc in self.game_categories]
 
     @property
     def discounted_price(self) -> Decimal:
@@ -184,7 +186,7 @@ class GameCategory(Base):
     
     __tablename__ = "game_categories"
     __table_args__ = (
-        UniqueConstraint("game_id", name="idx_game_primary_category", postgresql_where=text("is_primary = true")),
+        Index("idx_game_primary_category", "game_id", unique=True, postgresql_where=text("is_primary = true")),
         {"schema": "game_service"}
     )
 
@@ -203,6 +205,10 @@ class GameCategory(Base):
         DateTime(timezone=True), 
         server_default=func.current_timestamp()
     )
+    
+    # Relationships
+    game: Mapped["Game"] = relationship("Game", back_populates="game_categories")
+    category: Mapped["Category"] = relationship("Category")
 
     def __repr__(self) -> str:
         return f"<GameCategory(game_id={self.game_id}, category_id={self.category_id}, primary={self.is_primary})>"
