@@ -28,7 +28,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -47,17 +47,17 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     logger.info("Starting Game Service...")
-    
+
     # Check database connection
     db_connected = await check_database_connection()
     if not db_connected:
         logger.error("Failed to connect to database")
         raise RuntimeError("Database connection failed")
-    
+
     logger.info("Game Service started successfully")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Game Service...")
 
@@ -83,8 +83,7 @@ app.add_middleware(
 )
 
 app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=os.getenv("ALLOWED_HOSTS", "*").split(",")
+    TrustedHostMiddleware, allowed_hosts=os.getenv("ALLOWED_HOSTS", "*").split(",")
 )
 
 
@@ -94,7 +93,7 @@ async def logging_middleware(request: Request, call_next):
     Log all HTTP requests and responses.
     """
     start_time = time.time()
-    
+
     # Log request
     logger.info(
         "Request received",
@@ -103,13 +102,13 @@ async def logging_middleware(request: Request, call_next):
         client_ip=request.client.host if request.client else None,
         user_agent=request.headers.get("user-agent"),
     )
-    
+
     # Process request
     response = await call_next(request)
-    
+
     # Calculate processing time
     process_time = time.time() - start_time
-    
+
     # Log response
     logger.info(
         "Request completed",
@@ -118,10 +117,10 @@ async def logging_middleware(request: Request, call_next):
         status_code=response.status_code,
         process_time=round(process_time, 4),
     )
-    
+
     # Add processing time header
     response.headers["X-Process-Time"] = str(process_time)
-    
+
     return response
 
 
@@ -137,14 +136,14 @@ async def global_exception_handler(request: Request, exc: Exception):
         exception=str(exc),
         exc_info=True,
     )
-    
+
     return JSONResponse(
         status_code=500,
         content={
             "error": "Internal server error",
             "message": "An unexpected error occurred",
             "request_id": getattr(request.state, "request_id", None),
-        }
+        },
     )
 
 
@@ -168,13 +167,13 @@ async def health_check():
     Health check endpoint for monitoring.
     """
     from app.database import get_database_health
-    
+
     # Check database health
     db_health = await get_database_health()
-    
+
     # Determine overall health
     overall_status = "healthy" if db_health.get("status") == "healthy" else "unhealthy"
-    
+
     return {
         "status": overall_status,
         "service": "game-service",
@@ -182,7 +181,7 @@ async def health_check():
         "timestamp": time.time(),
         "checks": {
             "database": db_health,
-        }
+        },
     }
 
 
@@ -193,7 +192,8 @@ app.include_router(api_router, prefix="/api/v1")
 # Prometheus metrics endpoint (if enabled)
 if os.getenv("ENABLE_METRICS", "false").lower() == "true":
     from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
-    
+    from fastapi import Response
+
     @app.get("/metrics")
     async def metrics():
         """Prometheus metrics endpoint."""
@@ -202,7 +202,7 @@ if os.getenv("ENABLE_METRICS", "false").lower() == "true":
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     # Development server configuration
     uvicorn.run(
         "app.main:app",

@@ -8,7 +8,8 @@ from alembic import context
 
 # Import our models for autogenerate support
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from app.models.game import Base
 
@@ -25,6 +26,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 target_metadata = Base.metadata
 
+
 # Support environment variable substitution in database URL
 def get_url():
     url = config.get_main_option("sqlalchemy.url")
@@ -33,6 +35,7 @@ def get_url():
         for key, value in os.environ.items():
             url = url.replace(f"${{{key}}}", value)
     return url
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -78,9 +81,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

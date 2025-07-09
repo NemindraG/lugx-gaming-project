@@ -8,13 +8,14 @@ from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
+from sqlalchemy import text
 
 from app.models.game import Base
 
 
 class DatabaseConfig:
     """Database configuration settings."""
-    
+
     def __init__(self):
         # Database connection settings
         self.DB_HOST = os.getenv("DB_HOST", "localhost")
@@ -22,13 +23,13 @@ class DatabaseConfig:
         self.DB_NAME = os.getenv("DB_NAME", "gamedb")
         self.DB_USER = os.getenv("DB_USER", "game_service")
         self.DB_PASSWORD = os.getenv("DB_PASSWORD", "game_password")
-        
+
         # Connection pool settings
         self.DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
         self.DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))
         self.DB_POOL_TIMEOUT = int(os.getenv("DB_POOL_TIMEOUT", "30"))
         self.DB_POOL_RECYCLE = int(os.getenv("DB_POOL_RECYCLE", "3600"))
-        
+
         # Environment settings
         self.ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
         self.DEBUG = os.getenv("DEBUG", "true").lower() == "true"
@@ -80,10 +81,10 @@ AsyncSessionLocal = async_sessionmaker(
 async def get_database_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency to get database session.
-    
+
     Yields:
         AsyncSession: Database session for use in FastAPI endpoints
-        
+
     Example:
         @app.get("/games/")
         async def get_games(db: AsyncSession = Depends(get_database_session)):
@@ -122,7 +123,7 @@ async def drop_tables():
 async def check_database_connection() -> bool:
     """
     Check if database connection is working.
-    
+
     Returns:
         bool: True if connection is successful, False otherwise
     """
@@ -138,7 +139,7 @@ async def check_database_connection() -> bool:
 async def get_database_health() -> dict:
     """
     Get database health information.
-    
+
     Returns:
         dict: Database health status and metrics
     """
@@ -147,7 +148,7 @@ async def get_database_health() -> dict:
             # Check connection
             result = await session.execute(text("SELECT version()"))
             db_version = result.scalar()
-            
+
             # Get pool status
             pool = engine.pool
             pool_status = {
@@ -157,7 +158,7 @@ async def get_database_health() -> dict:
                 "overflow": pool.overflow(),
                 "invalid": pool.invalid(),
             }
-            
+
             return {
                 "status": "healthy",
                 "database_version": db_version,
@@ -175,7 +176,7 @@ async def get_database_health() -> dict:
 # Export commonly used items
 __all__ = [
     "engine",
-    "AsyncSessionLocal", 
+    "AsyncSessionLocal",
     "get_database_session",
     "create_tables",
     "drop_tables",
