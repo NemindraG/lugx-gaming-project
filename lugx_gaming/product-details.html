@@ -59,7 +59,7 @@ https://templatemo.com/tm-589-lugx-gaming
                       <li><a href="shop.html">Our Shop</a></li>
                       <li><a href="product-details.html" class="active">Product Details</a></li>
                       <li><a href="contact.html">Contact Us</a></li>
-                      <li><a href="#">Sign In</a></li>
+                      <li><a href="login.html">Sign In</a></li>
                   </ul>   
                     <a class='menu-trigger'>
                         <span>Menu</span>
@@ -76,8 +76,8 @@ https://templatemo.com/tm-589-lugx-gaming
     <div class="container">
       <div class="row">
         <div class="col-lg-12">
-          <h3>Modern Warfare® II</h3>
-          <span class="breadcrumb"><a href="#">Home</a>  >  <a href="#">Shop</a>  >  Assasin Creed</span>
+          <h3 id="dynamicTitle">Modern Warfare® II</h3>
+          <span class="breadcrumb" id="dynamicBreadcrumb"><a href="index.html">Home</a>  >  <a href="shop.html">Shop</a>  >  Product Details</span>
         </div>
       </div>
     </div>
@@ -219,6 +219,18 @@ https://templatemo.com/tm-589-lugx-gaming
   <script src="assets/js/owl-carousel.js"></script>
   <script src="assets/js/counter.js"></script>
   <script src="assets/js/custom.js"></script>
+  
+  <!-- LugX API Integration Layer -->
+  <script src="assets/js/api/apiService.js"></script>
+  <script src="assets/js/api/authService.js"></script>
+  <script src="assets/js/api/analyticsService.js"></script>
+  
+  <!-- Page Enhancement Modules -->
+  <script src="assets/js/integration/productDetailsEnhancer.js"></script>
+  <script src="assets/js/integration/cartIntegration.js"></script>
+  
+  <!-- Legacy API Wrapper (for backward compatibility) -->
+  <script src="assets/js/lugx-api.js"></script>
 
   </body>
 </html>

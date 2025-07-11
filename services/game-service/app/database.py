@@ -17,12 +17,25 @@ class DatabaseConfig:
     """Database configuration settings."""
 
     def __init__(self):
-        # Database connection settings
-        self.DB_HOST = os.getenv("DB_HOST", "localhost")
-        self.DB_PORT = os.getenv("DB_PORT", "5432")
-        self.DB_NAME = os.getenv("DB_NAME", "gamedb")
-        self.DB_USER = os.getenv("DB_USER", "game_service")
-        self.DB_PASSWORD = os.getenv("DB_PASSWORD", "game_password")
+        # Primary database URL (from environment or compose individual settings)
+        self.DATABASE_URL = os.getenv("DATABASE_URL")
+        
+        # Fallback to individual settings if DATABASE_URL not provided
+        if not self.DATABASE_URL:
+            self.DB_HOST = os.getenv("DB_HOST", "postgres-game")
+            self.DB_PORT = os.getenv("DB_PORT", "5432") 
+            self.DB_NAME = os.getenv("DB_NAME", "lugx_games")
+            self.DB_USER = os.getenv("DB_USER", "game_service")
+            self.DB_PASSWORD = os.getenv("DB_PASSWORD", "game_secure_password_2024")
+        else:
+            # Parse DATABASE_URL to extract components
+            import urllib.parse
+            parsed = urllib.parse.urlparse(self.DATABASE_URL)
+            self.DB_HOST = parsed.hostname
+            self.DB_PORT = str(parsed.port or 5432)
+            self.DB_NAME = parsed.path.lstrip('/')
+            self.DB_USER = parsed.username
+            self.DB_PASSWORD = parsed.password
 
         # Connection pool settings
         self.DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
@@ -37,6 +50,8 @@ class DatabaseConfig:
     @property
     def database_url(self) -> str:
         """Get the async database URL."""
+        if self.DATABASE_URL:
+            return self.DATABASE_URL
         return (
             f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
@@ -45,6 +60,8 @@ class DatabaseConfig:
     @property
     def database_url_sync(self) -> str:
         """Get the sync database URL for migrations."""
+        if self.DATABASE_URL:
+            return self.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql://")
         return (
             f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
@@ -127,12 +144,25 @@ async def check_database_connection() -> bool:
     Returns:
         bool: True if connection is successful, False otherwise
     """
-    try:
-        async with AsyncSessionLocal() as session:
-            await session.execute(text("SELECT 1"))
-            return True
-    except Exception:
-        return False
+    import asyncio
+    
+    max_retries = 5
+    retry_delay = 2
+    
+    for attempt in range(max_retries):
+        try:
+            async with AsyncSessionLocal() as session:
+                await session.execute(text("SELECT 1"))
+                return True
+        except Exception as e:
+            print(f"Database connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(retry_delay)
+            else:
+                print(f"Failed to connect to database after {max_retries} attempts")
+                return False
+    
+    return False
 
 
 # Health check query

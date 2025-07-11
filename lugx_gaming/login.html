@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>Lugx Gaming - Login</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+      .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+      }
+      
+      .auth-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+      }
+      
+      .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .auth-header h2 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      
+      .auth-header p {
+        color: #666;
+        margin-bottom: 0;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
+      
+      .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+      }
+      
+      .form-control.is-invalid {
+        border-color: #dc3545;
+      }
+      
+      .form-control.is-valid {
+        border-color: #28a745;
+      }
+      
+      .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+      
+      .btn-auth {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+      
+      .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+      }
+      
+      .btn-auth:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .auth-divider {
+        text-align: center;
+        margin: 25px 0;
+        position: relative;
+      }
+      
+      .auth-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e1e5e9;
+      }
+      
+      .auth-divider span {
+        background: white;
+        padding: 0 20px;
+        color: #666;
+        font-size: 14px;
+      }
+      
+      .auth-links {
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      .auth-links a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      
+      .auth-links a:hover {
+        text-decoration: underline;
+      }
+      
+      .forgot-password {
+        text-align: center;
+        margin-top: 15px;
+      }
+      
+      .forgot-password a {
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+      }
+      
+      .forgot-password a:hover {
+        color: #007bff;
+        text-decoration: underline;
+      }
+      
+      .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: none;
+      }
+      
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      
+      .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+      
+      .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.15em;
+      }
+    </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/logo.png" alt="" style="width: 158px;">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="index.html">Home</a></li>
+                      <li><a href="shop.html">Our Shop</a></li>
+                      <li><a href="product-details.html">Product Details</a></li>
+                      <li><a href="contact.html">Contact Us</a></li>
+                      <li><a href="login.html" class="active">Sign In</a></li>
+                  </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Sign In</h3>
+          <span class="breadcrumb"><a href="index.html">Home</a> > Sign In</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-container">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+          <div class="auth-card">
+            <div class="auth-header">
+              <h2>Welcome Back!</h2>
+              <p>Sign in to your account to continue shopping</p>
+            </div>
+
+            <form id="loginForm" novalidate>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" required 
+                       placeholder="Enter your email address">
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required 
+                       placeholder="Enter your password">
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                  <label class="form-check-label" for="rememberMe">
+                    Remember me for 30 days
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-auth" id="loginButton">
+                Sign In
+              </button>
+
+              <div class="forgot-password">
+                <a href="#" id="forgotPasswordLink">Forgot your password?</a>
+              </div>
+            </form>
+
+            <div class="auth-divider">
+              <span>Don't have an account?</span>
+            </div>
+
+            <div class="auth-links">
+              <a href="register.html">Create a new account</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="col-lg-12">
+        <p>Copyright © 2048 LUGX Gaming Company. All rights reserved. &nbsp;&nbsp; <a rel="nofollow" href="https://templatemo.com" target="_blank">Design: TemplateMo</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/counter.js"></script>
+  <script src="assets/js/custom.js"></script>
+  
+  <!-- LugX API Integration Layer -->
+  <script src="assets/js/api/apiService.js"></script>
+  <script src="assets/js/api/authService.js"></script>
+  <script src="assets/js/api/analyticsService.js"></script>
+  
+  <!-- Cart Integration -->
+  <script src="assets/js/integration/cartIntegration.js"></script>
+  
+  <!-- Legacy API Wrapper -->
+  <script src="assets/js/lugx-api.js"></script>
+
+  <!-- Login Page Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const loginButton = document.getElementById('loginButton');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+
+      // Check if user is already logged in
+      if (window.authService && window.authService.isAuthenticated()) {
+        redirectAfterLogin();
+        return;
+      }
+
+      // Form submission handler
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Clear previous validation states
+        clearValidationStates();
+        
+        // Get form data
+        const formData = new FormData(loginForm);
+        const email = formData.get('email').trim();
+        const password = formData.get('password');
+        
+        // Validate form
+        if (!validateForm(email, password)) {
+          return;
+        }
+        
+        // Show loading state
+        showLoadingState();
+        
+        try {
+          // Attempt login
+          const result = await window.authService.login(email, password);
+          
+          if (result.success) {
+            showSuccess('Login successful! Redirecting...');
+            
+            // Track successful login
+            if (window.analyticsService) {
+              window.analyticsService.track('user_login_success', {
+                login_method: 'email',
+                redirect_url: getRedirectUrl()
+              });
+            }
+            
+            // Redirect after brief delay
+            setTimeout(() => {
+              redirectAfterLogin();
+            }, 1000);
+            
+          } else {
+            showError(result.error || 'Login failed. Please try again.');
+            
+            // Track failed login
+            if (window.analyticsService) {
+              window.analyticsService.track('user_login_failed', {
+                error: result.error,
+                can_retry: result.canRetry
+              });
+            }
+          }
+          
+        } catch (error) {
+          console.error('Login error:', error);
+          showError('An unexpected error occurred. Please try again.');
+          
+          if (window.analyticsService) {
+            window.analyticsService.trackError(error, { context: 'login_form' });
+          }
+        } finally {
+          hideLoadingState();
+        }
+      });
+
+      // Forgot password handler
+      forgotPasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        handleForgotPassword();
+      });
+
+      // Real-time validation
+      emailInput.addEventListener('blur', function() {
+        validateEmail(this.value.trim());
+      });
+
+      passwordInput.addEventListener('blur', function() {
+        validatePassword(this.value);
+      });
+
+      // Functions
+      function validateForm(email, password) {
+        let isValid = true;
+        
+        if (!validateEmail(email)) {
+          isValid = false;
+        }
+        
+        if (!validatePassword(password)) {
+          isValid = false;
+        }
+        
+        return isValid;
+      }
+
+      function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!email) {
+          showFieldError(emailInput, 'Email address is required');
+          return false;
+        } else if (!emailRegex.test(email)) {
+          showFieldError(emailInput, 'Please enter a valid email address');
+          return false;
+        } else {
+          showFieldSuccess(emailInput);
+          return true;
+        }
+      }
+
+      function validatePassword(password) {
+        if (!password) {
+          showFieldError(passwordInput, 'Password is required');
+          return false;
+        } else if (password.length < 6) {
+          showFieldError(passwordInput, 'Password must be at least 6 characters');
+          return false;
+        } else {
+          showFieldSuccess(passwordInput);
+          return true;
+        }
+      }
+
+      function showFieldError(input, message) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        if (feedback) {
+          feedback.textContent = message;
+        }
+      }
+
+      function showFieldSuccess(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+      }
+
+      function clearValidationStates() {
+        const inputs = loginForm.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+          input.classList.remove('is-valid', 'is-invalid');
+        });
+        
+        // Clear any existing alerts
+        const existingAlerts = loginForm.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+      }
+
+      function showLoadingState() {
+        loginButton.disabled = true;
+        loginButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
+      }
+
+      function hideLoadingState() {
+        loginButton.disabled = false;
+        loginButton.innerHTML = 'Sign In';
+      }
+
+      function showError(message) {
+        showAlert(message, 'danger');
+      }
+
+      function showSuccess(message) {
+        showAlert(message, 'success');
+      }
+
+      function showInfo(message) {
+        showAlert(message, 'info');
+      }
+
+      function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlerts = loginForm.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Create new alert
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        
+        // Insert at the top of the form
+        loginForm.insertBefore(alert, loginForm.firstChild);
+        
+        // Auto-remove success messages
+        if (type === 'success') {
+          setTimeout(() => {
+            alert.remove();
+          }, 5000);
+        }
+      }
+
+      async function handleForgotPassword() {
+        const email = emailInput.value.trim();
+        
+        if (!email) {
+          showError('Please enter your email address first');
+          emailInput.focus();
+          return;
+        }
+        
+        if (!validateEmail(email)) {
+          return;
+        }
+        
+        try {
+          showInfo('Sending password reset instructions...');
+          
+          const result = await window.authService.requestPasswordReset(email);
+          
+          if (result.success) {
+            showSuccess(result.message);
+          } else {
+            showError(result.error);
+          }
+          
+        } catch (error) {
+          console.error('Password reset error:', error);
+          showError('Failed to send password reset instructions. Please try again.');
+        }
+      }
+
+      function getRedirectUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('redirect') || 'index.html';
+      }
+
+      function redirectAfterLogin() {
+        const redirectUrl = getRedirectUrl();
+        window.location.href = redirectUrl;
+      }
+
+      // Track page view
+      if (window.analyticsService) {
+        window.analyticsService.trackPageView({
+          page_type: 'login',
+          referrer: document.referrer
+        });
+      }
+    });
+  </script>
+
+  </body>
+</html>

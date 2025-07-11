@@ -69,8 +69,8 @@ class ClickHouseClient:
         host: str = "localhost",
         port: int = 8123,
         database: str = "lugx_analytics",
-        user: str = "analytics_service",
-        password: str = "analytics_secure_password_2024",
+        user: str = "analytics_user",
+        password: str = "analytics_password",
         batch_size: int = 1000,
         flush_interval: int = 30,
     ):
@@ -230,9 +230,10 @@ class ClickHouseClient:
                 }
                 rows.append(row)
 
-            # Create INSERT query
+            # Create INSERT query - use events table (primary) with fallback to web_events
+            table_name = "events"  # Primary table from our init script
             query = f"""
-                INSERT INTO {self.database}.web_events FORMAT JSONEachRow
+                INSERT INTO {self.database}.{table_name} FORMAT JSONEachRow
             """
 
             # Prepare data
@@ -415,7 +416,92 @@ class ClickHouseClient:
             except Exception as e:
                 logger.error(f"Background flush failed: {e}")
 
-    async def create_materialized_view(self, view_name: str, query: str):
+    async def health_check(self) -> Dict[str, Any]:
+        """Check ClickHouse health status."""
+        try:
+            is_connected = await self.ping()
+            if not is_connected:
+                return {"status": "unhealthy", "error": "Cannot connect to ClickHouse"}
+            
+            # Test basic query
+            result = await self.execute_query("SELECT 1 as test")
+            if result and result[0].get("test") == 1:
+                return {"status": "healthy", "message": "ClickHouse is operational"}
+            else:
+                return {"status": "unhealthy", "error": "Query test failed"}
+                
+        except Exception as e:
+            return {"status": "unhealthy", "error": str(e)}
+
+    async def init_schema(self):
+        """Initialize ClickHouse database schema for web analytics."""
+        try:
+            # Create database if it doesn't exist
+            await self.execute_query(f"CREATE DATABASE IF NOT EXISTS {self.database}")
+            
+            # Create main web events table
+            create_table_query = f"""
+                CREATE TABLE IF NOT EXISTS {self.database}.web_events (
+                    event_id String,
+                    event_type LowCardinality(String),
+                    timestamp DateTime64(6),
+                    session_id String,
+                    user_id String,
+                    page_url String,
+                    page_title String,
+                    referrer String,
+                    element_type String,
+                    element_text String,
+                    element_id String,
+                    click_x UInt16,
+                    click_y UInt16,
+                    scroll_depth UInt16,
+                    max_scroll UInt16,
+                    page_height UInt16,
+                    product_id String,
+                    category String,
+                    price Float64,
+                    user_agent String,
+                    screen_width UInt16,
+                    screen_height UInt16,
+                    viewport_width UInt16,
+                    viewport_height UInt16,
+                    properties String
+                ) ENGINE = MergeTree()
+                PARTITION BY toYYYYMM(timestamp)
+                ORDER BY (event_type, timestamp, session_id)
+                TTL timestamp + INTERVAL 2 YEAR
+                SETTINGS index_granularity = 8192
+            """
+            
+            await self.execute_query(create_table_query)
+            
+            # Create indexes for better query performance
+            await self.execute_query(f"""
+                ALTER TABLE {self.database}.web_events 
+                ADD INDEX IF NOT EXISTS idx_session_id session_id TYPE bloom_filter(0.01) GRANULARITY 1
+            """)
+            
+            await self.execute_query(f"""
+                ALTER TABLE {self.database}.web_events 
+                ADD INDEX IF NOT EXISTS idx_user_id user_id TYPE bloom_filter(0.01) GRANULARITY 1
+            """)
+            
+            await self.execute_query(f"""
+                ALTER TABLE {self.database}.web_events 
+                ADD INDEX IF NOT EXISTS idx_page_url page_url TYPE bloom_filter(0.01) GRANULARITY 1
+            """)
+            
+            # Set up materialized views for common analytics queries
+            await self.setup_analytics_views()
+            
+            logger.info("ClickHouse schema initialized successfully")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize ClickHouse schema: {e}")
+            raise
+
+
         """Create a materialized view for optimized queries."""
         try:
             create_query = f"""
@@ -494,3 +580,18 @@ async def create_clickhouse_client(
     )
     await client.connect()
     return client
+
+
+def get_client(**kwargs: Any) -> ClickHouseClient:
+    """Get a ClickHouse client instance (not connected - use for initialization)."""
+    from app.core.config import settings
+    
+    return ClickHouseClient(
+        host=getattr(settings, 'CLICKHOUSE_HOST', 'localhost'),
+        port=getattr(settings, 'CLICKHOUSE_PORT', 8123),
+        database=getattr(settings, 'CLICKHOUSE_DATABASE', 'lugx_analytics'),
+        user=getattr(settings, 'CLICKHOUSE_USER', 'analytics_user'),
+        password=getattr(settings, 'CLICKHOUSE_PASSWORD', 'analytics_password'),
+        **kwargs
+    )
+

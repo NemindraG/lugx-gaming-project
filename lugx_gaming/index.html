@@ -60,7 +60,7 @@ https://templatemo.com/tm-589-lugx-gaming
                       <li><a href="shop.html">Our Shop</a></li>
                       <li><a href="product-details.html">Product Details</a></li>
                       <li><a href="contact.html">Contact Us</a></li>
-                      <li><a href="#">Sign In</a></li>
+                      <li><a href="login.html">Sign In</a></li>
                   </ul>   
                     <a class='menu-trigger'>
                         <span>Menu</span>
@@ -83,8 +83,8 @@ https://templatemo.com/tm-589-lugx-gaming
             <p>LUGX Gaming is free Bootstrap 5 HTML CSS website template for your gaming websites. You can download and use this layout for commercial purposes. Please tell your friends about TemplateMo.</p>
             <div class="search-input">
               <form id="search" action="#">
-                <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword" onkeypress="handle" />
-                <button role="button">Search Now</button>
+                <input type="text" placeholder="Search games..." id='game-search' name="searchKeyword" />
+                <button type="button" id="search-button">Search Now</button>
               </form>
             </div>
           </div>
@@ -147,7 +147,7 @@ https://templatemo.com/tm-589-lugx-gaming
     </div>
   </div>
 
-  <div class="section trending">
+  <div class="section trending" id="trending-games-section">
     <div class="container">
       <div class="row">
         <div class="col-lg-6">
@@ -161,55 +161,15 @@ https://templatemo.com/tm-589-lugx-gaming
             <a href="shop.html">View All</a>
           </div>
         </div>
-        <div class="col-lg-3 col-md-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/trending-01.jpg" alt=""></a>
-              <span class="price"><em>$28</em>$20</span>
-            </div>
-            <div class="down-content">
-              <span class="category">Action</span>
-              <h4>Assasin Creed</h4>
-              <a href="product-details.html"><i class="fa fa-shopping-bag"></i></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/trending-02.jpg" alt=""></a>
-              <span class="price">$44</span>
-            </div>
-            <div class="down-content">
-              <span class="category">Action</span>
-              <h4>Assasin Creed</h4>
-              <a href="product-details.html"><i class="fa fa-shopping-bag"></i></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/trending-03.jpg" alt=""></a>
-              <span class="price"><em>$64</em>$44</span>
-            </div>
-            <div class="down-content">
-              <span class="category">Action</span>
-              <h4>Assasin Creed</h4>
-              <a href="product-details.html"><i class="fa fa-shopping-bag"></i></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/trending-04.jpg" alt=""></a>
-              <span class="price">$32</span>
-            </div>
-            <div class="down-content">
-              <span class="category">Action</span>
-              <h4>Assasin Creed</h4>
-              <a href="product-details.html"><i class="fa fa-shopping-bag"></i></a>
+        <!-- Dynamic trending games will be loaded here -->
+        <div id="trending-games-container" class="col-12">
+          <div class="row">
+            <!-- Loading placeholder -->
+            <div class="col-12 text-center">
+              <div class="loading-placeholder">
+                <i class="fa fa-spinner fa-spin"></i>
+                <p>Loading trending games...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -217,13 +177,13 @@ https://templatemo.com/tm-589-lugx-gaming
     </div>
   </div>
 
-  <div class="section most-played">
+  <div class="section most-played" id="featured-games-section">
     <div class="container">
       <div class="row">
         <div class="col-lg-6">
           <div class="section-heading">
             <h6>TOP GAMES</h6>
-            <h2>Most Played</h2>
+            <h2>Featured Games</h2>
           </div>
         </div>
         <div class="col-lg-6">
@@ -231,75 +191,15 @@ https://templatemo.com/tm-589-lugx-gaming
             <a href="shop.html">View All</a>
           </div>
         </div>
-        <div class="col-lg-2 col-md-6 col-sm-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/top-game-01.jpg" alt=""></a>
-            </div>
-            <div class="down-content">
-                <span class="category">Adventure</span>
-                <h4>Assasin Creed</h4>
-                <a href="product-details.html">Explore</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 col-sm-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/top-game-02.jpg" alt=""></a>
-            </div>
-            <div class="down-content">
-                <span class="category">Adventure</span>
-                <h4>Assasin Creed</h4>
-                <a href="product-details.html">Explore</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 col-sm-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/top-game-03.jpg" alt=""></a>
-            </div>
-            <div class="down-content">
-                <span class="category">Adventure</span>
-                <h4>Assasin Creed</h4>
-                <a href="product-details.html">Explore</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 col-sm-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/top-game-04.jpg" alt=""></a>
-            </div>
-            <div class="down-content">
-                <span class="category">Adventure</span>
-                <h4>Assasin Creed</h4>
-                <a href="product-details.html">Explore</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 col-sm-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/top-game-05.jpg" alt=""></a>
-            </div>
-            <div class="down-content">
-                <span class="category">Adventure</span>
-                <h4>Assasin Creed</h4>
-                <a href="product-details.html">Explore</a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-2 col-md-6 col-sm-6">
-          <div class="item">
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/top-game-06.jpg" alt=""></a>
-            </div>
-            <div class="down-content">
-                <span class="category">Adventure</span>
-                <h4>Assasin Creed</h4>
-                <a href="product-details.html">Explore</a>
+        <!-- Dynamic featured games will be loaded here -->
+        <div id="featured-games-container" class="col-12">
+          <div class="row">
+            <!-- Loading placeholder -->
+            <div class="col-12 text-center">
+              <div class="loading-placeholder">
+                <i class="fa fa-spinner fa-spin"></i>
+                <p>Loading featured games...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -307,7 +207,7 @@ https://templatemo.com/tm-589-lugx-gaming
     </div>
   </div>
 
-  <div class="section categories">
+  <div class="section categories" id="categories-section">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
@@ -316,43 +216,15 @@ https://templatemo.com/tm-589-lugx-gaming
             <h2>Top Categories</h2>
           </div>
         </div>
-        <div class="col-lg col-sm-6 col-xs-12">
-          <div class="item">
-            <h4>Action</h4>
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/categories-01.jpg" alt=""></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg col-sm-6 col-xs-12">
-          <div class="item">
-            <h4>Action</h4>
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/categories-05.jpg" alt=""></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg col-sm-6 col-xs-12">
-          <div class="item">
-            <h4>Action</h4>
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/categories-03.jpg" alt=""></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg col-sm-6 col-xs-12">
-          <div class="item">
-            <h4>Action</h4>
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/categories-04.jpg" alt=""></a>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg col-sm-6 col-xs-12">
-          <div class="item">
-            <h4>Action</h4>
-            <div class="thumb">
-              <a href="product-details.html"><img src="assets/images/categories-05.jpg" alt=""></a>
+        <!-- Dynamic categories will be loaded here -->
+        <div id="categories-container" class="col-12">
+          <div class="row">
+            <!-- Loading placeholder -->
+            <div class="col-12 text-center">
+              <div class="loading-placeholder">
+                <i class="fa fa-spinner fa-spin"></i>
+                <p>Loading categories...</p>
+              </div>
             </div>
           </div>
         </div>
@@ -417,6 +289,30 @@ https://templatemo.com/tm-589-lugx-gaming
   <script src="assets/js/owl-carousel.js"></script>
   <script src="assets/js/counter.js"></script>
   <script src="assets/js/custom.js"></script>
+  
+  <!-- LugX API Integration Layer -->
+  <script src="assets/js/api/apiService.js"></script>
+  <script src="assets/js/api/authService.js"></script>
+  <script src="assets/js/api/analyticsService.js"></script>
+  
+  <!-- Page Enhancement Modules -->
+  <script src="assets/js/integration/gameIntegration.js"></script>
+  <script src="assets/js/integration/homepageEnhancer.js"></script>
+  <script src="assets/js/integration/cartIntegration.js"></script>
+  
+  <!-- Legacy API Wrapper (for backward compatibility) -->
+  <script src="assets/js/lugx-api.js"></script>
+  
+  <!-- Global Loading Indicator -->
+  <div id="loading-indicator" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 9999; color: white; text-align: center; padding-top: 20%;">
+    <div style="font-size: 24px;">
+      <i class="fa fa-spinner fa-spin fa-2x"></i>
+      <p style="margin-top: 20px;">Loading...</p>
+    </div>
+  </div>
+  
+  <!-- Cart Count Indicator -->
+  <div id="cart-count" style="display: none; position: fixed; top: 10px; right: 10px; background: #e74c3c; color: white; border-radius: 50%; width: 25px; height: 25px; text-align: center; font-size: 12px; line-height: 25px; z-index: 1000;">0</div>
 
   </body>
 </html>

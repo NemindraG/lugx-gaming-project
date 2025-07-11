@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>Lugx Gaming - Order Confirmation</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+      .success-container {
+        padding: 60px 0;
+        min-height: 600px;
+      }
+      
+      .success-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .success-icon {
+        font-size: 64px;
+        color: #28a745;
+        margin-bottom: 20px;
+      }
+      
+      .success-title {
+        color: #333;
+        font-size: 32px;
+        font-weight: 600;
+        margin-bottom: 15px;
+      }
+      
+      .success-subtitle {
+        color: #666;
+        font-size: 18px;
+        margin-bottom: 30px;
+      }
+      
+      .order-details {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: left;
+      }
+      
+      .order-details h4 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+      
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #e9ecef;
+      }
+      
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+      
+      .detail-label {
+        color: #666;
+        font-weight: 500;
+      }
+      
+      .detail-value {
+        color: #333;
+        font-weight: 600;
+      }
+      
+      .next-steps {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+      }
+      
+      .next-steps h4 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+      
+      .next-steps ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .next-steps li {
+        padding: 8px 0;
+        color: #666;
+      }
+      
+      .next-steps li i {
+        color: #007bff;
+        margin-right: 10px;
+        width: 20px;
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      .btn-primary-custom {
+        background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+        color: white;
+        text-decoration: none;
+      }
+      
+      .btn-secondary-custom {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-secondary-custom:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+      }
+      
+      .loading-state {
+        text-align: center;
+        padding: 60px 20px;
+      }
+      
+      .error-state {
+        text-align: center;
+        padding: 60px 20px;
+      }
+      
+      .error-icon {
+        font-size: 64px;
+        color: #dc3545;
+        margin-bottom: 20px;
+      }
+      
+      @media (max-width: 768px) {
+        .success-card {
+          padding: 20px;
+        }
+        
+        .success-title {
+          font-size: 24px;
+        }
+        
+        .action-buttons {
+          flex-direction: column;
+        }
+        
+        .btn-primary-custom,
+        .btn-secondary-custom {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/logo.png" alt="" style="width: 158px;">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="index.html">Home</a></li>
+                      <li><a href="shop.html">Our Shop</a></li>
+                      <li><a href="product-details.html">Product Details</a></li>
+                      <li><a href="contact.html">Contact Us</a></li>
+                      <li><a href="login.html">Sign In</a></li>
+                  </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Order Confirmation</h3>
+          <span class="breadcrumb"><a href="index.html">Home</a> > <a href="checkout.html">Checkout</a> > Order Confirmation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-container">
+    <div class="container">
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-3">Loading order details...</p>
+      </div>
+
+      <!-- Success State -->
+      <div id="successState" class="row justify-content-center" style="display: none;">
+        <div class="col-lg-8">
+          <div class="success-card">
+            <div class="success-icon">
+              <i class="fa fa-check-circle"></i>
+            </div>
+            <h1 class="success-title">Order Confirmed!</h1>
+            <p class="success-subtitle">Thank you for your purchase. Your order has been successfully placed.</p>
+            
+            <div class="order-details" id="orderDetails">
+              <h4><i class="fa fa-receipt"></i> Order Details</h4>
+              <!-- Order details will be populated dynamically -->
+            </div>
+
+            <div class="next-steps">
+              <h4><i class="fa fa-list-ul"></i> What happens next?</h4>
+              <ul>
+                <li><i class="fa fa-envelope"></i> You'll receive an order confirmation email shortly</li>
+                <li><i class="fa fa-download"></i> Digital games will be available for download immediately</li>
+                <li><i class="fa fa-truck"></i> Physical items will be shipped within 1-2 business days</li>
+                <li><i class="fa fa-bell"></i> We'll send updates about your order status</li>
+              </ul>
+            </div>
+
+            <div class="action-buttons">
+              <a href="shop.html" class="btn-primary-custom">
+                <i class="fa fa-shopping-cart"></i> Continue Shopping
+              </a>
+              <a href="#" class="btn-secondary-custom" id="viewOrderBtn">
+                <i class="fa fa-eye"></i> View Order Details
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" class="row justify-content-center" style="display: none;">
+        <div class="col-lg-8">
+          <div class="success-card">
+            <div class="error-icon">
+              <i class="fa fa-exclamation-triangle"></i>
+            </div>
+            <h1 class="success-title">Order Not Found</h1>
+            <p class="success-subtitle">We couldn't find the order you're looking for.</p>
+            
+            <div class="action-buttons">
+              <a href="shop.html" class="btn-primary-custom">
+                <i class="fa fa-home"></i> Go to Shop
+              </a>
+              <a href="contact.html" class="btn-secondary-custom">
+                <i class="fa fa-envelope"></i> Contact Support
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="col-lg-12">
+        <p>Copyright © 2048 LUGX Gaming Company. All rights reserved. &nbsp;&nbsp; <a rel="nofollow" href="https://templatemo.com" target="_blank">Design: TemplateMo</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/counter.js"></script>
+  <script src="assets/js/custom.js"></script>
+  
+  <!-- LugX API Integration Layer -->
+  <script src="assets/js/api/apiService.js"></script>
+  <script src="assets/js/api/authService.js"></script>
+  <script src="assets/js/api/analyticsService.js"></script>
+  
+  <!-- Legacy API Wrapper (for backward compatibility) -->
+  <script src="assets/js/lugx-api.js"></script>
+
+  <!-- Order Success Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      const loadingState = document.getElementById('loadingState');
+      const successState = document.getElementById('successState');
+      const errorState = document.getElementById('errorState');
+      const orderDetailsContainer = document.getElementById('orderDetails');
+      const viewOrderBtn = document.getElementById('viewOrderBtn');
+
+      // Get order ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('order_id');
+
+      if (!orderId) {
+        showErrorState();
+        return;
+      }
+
+      try {
+        // Load order details
+        const orderData = await loadOrderDetails(orderId);
+        
+        if (orderData) {
+          displayOrderDetails(orderData);
+          showSuccessState();
+          
+          // Track order success page view
+          if (window.analyticsService) {
+            window.analyticsService.track('order_success_viewed', {
+              order_id: orderId,
+              order_total: orderData.total,
+              item_count: orderData.items?.length || 0
+            });
+          }
+        } else {
+          showErrorState();
+        }
+
+      } catch (error) {
+        console.error('Failed to load order details:', error);
+        showErrorState();
+      }
+
+      async function loadOrderDetails(orderId) {
+        try {
+          // Wait for API service
+          let attempts = 0;
+          while (!window.apiService && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+          }
+
+          if (window.apiService) {
+            const response = await window.apiService.get('order', `/orders/${orderId}`);
+            return response;
+          } else {
+            // Fallback mock data for testing
+            return generateMockOrderData(orderId);
+          }
+        } catch (error) {
+          console.warn('API call failed, using mock data:', error);
+          return generateMockOrderData(orderId);
+        }
+      }
+
+      function generateMockOrderData(orderId) {
+        return {
+          id: orderId,
+          order_number: `LGX-${String(orderId).padStart(6, '0')}`,
+          status: 'confirmed',
+          total: 149.97,
+          subtotal: 139.97,
+          tax: 10.00,
+          shipping: 0.00,
+          currency: 'USD',
+          created_at: new Date().toISOString(),
+          payment_method: 'Credit Card',
+          payment_status: 'completed',
+          customer: {
+            email: 'customer@example.com',
+            first_name: 'John',
+            last_name: 'Doe'
+          },
+          shipping_address: {
+            street_address: '123 Gaming St',
+            city: 'Game City',
+            state: 'CA',
+            zip_code: '90210',
+            country: 'US'
+          },
+          items: [
+            {
+              id: 1,
+              game_name: 'Call of Duty: Modern Warfare II',
+              category: 'Action',
+              price: 69.99,
+              quantity: 1,
+              total: 69.99
+            },
+            {
+              id: 2,
+              game_name: 'Cyberpunk 2077',
+              category: 'RPG',
+              price: 39.99,
+              quantity: 1,
+              total: 39.99
+            },
+            {
+              id: 3,
+              game_name: 'The Witcher 3: Wild Hunt',
+              category: 'RPG',
+              price: 29.99,
+              quantity: 1,
+              total: 29.99
+            }
+          ]
+        };
+      }
+
+      function displayOrderDetails(order) {
+        const orderDate = new Date(order.created_at).toLocaleDateString();
+        const estimatedDelivery = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString();
+
+        const detailsHTML = `
+          <div class="detail-row">
+            <span class="detail-label">Order Number:</span>
+            <span class="detail-value">${order.order_number || order.id}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Order Date:</span>
+            <span class="detail-value">${orderDate}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Total Amount:</span>
+            <span class="detail-value">$${order.total.toFixed(2)}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Payment Method:</span>
+            <span class="detail-value">${order.payment_method || 'Credit Card'}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value" style="color: #28a745; text-transform: capitalize;">${order.status}</span>
+          </div>
+          ${order.items && order.items.length > 0 ? `
+          <div class="detail-row">
+            <span class="detail-label">Items:</span>
+            <span class="detail-value">${order.items.length} item${order.items.length !== 1 ? 's' : ''}</span>
+          </div>
+          ` : ''}
+          <div class="detail-row">
+            <span class="detail-label">Estimated Delivery:</span>
+            <span class="detail-value">${estimatedDelivery}</span>
+          </div>
+        `;
+
+        orderDetailsContainer.innerHTML = `
+          <h4><i class="fa fa-receipt"></i> Order Details</h4>
+          ${detailsHTML}
+        `;
+
+        // Set up view order button
+        if (viewOrderBtn) {
+          viewOrderBtn.href = `order-details.html?id=${order.id}`;
+        }
+      }
+
+      function showSuccessState() {
+        loadingState.style.display = 'none';
+        errorState.style.display = 'none';
+        successState.style.display = 'block';
+      }
+
+      function showErrorState() {
+        loadingState.style.display = 'none';
+        successState.style.display = 'none';
+        errorState.style.display = 'block';
+      }
+
+      // Track page view
+      if (window.analyticsService) {
+        window.analyticsService.trackPageView({
+          page_type: 'order_success',
+          order_id: orderId
+        });
+      }
+    });
+  </script>
+
+  </body>
+</html>

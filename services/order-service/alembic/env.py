@@ -1,9 +1,20 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+
+# Import models for autogenerate support
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
+try:
+    from app.models.user import Base
+    target_metadata = Base.metadata
+except ImportError:
+    target_metadata = None
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -14,11 +25,14 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
+# Support environment variable substitution in database URL
+def get_url():
+    url = config.get_main_option("sqlalchemy.url")
+    if url and "${" in url:
+        # Replace environment variables
+        for key, value in os.environ.items():
+            url = url.replace(f"${{{key}}}", value)
+    return url
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -38,7 +52,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -57,8 +71,15 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Get the database URL with environment variable substitution
+    url = get_url()
+    
+    # Create configuration dict with the resolved URL
+    configuration = config.get_section(config.config_ini_section, {})
+    configuration["sqlalchemy.url"] = url
+    
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

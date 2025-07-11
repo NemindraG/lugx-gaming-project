@@ -1,0 +1,169 @@
+# Analytics Service Deployment with ClickHouse Integration
+# Implements automatic schema initialization before application startup
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-service
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/name: analytics-service
+    app.kubernetes.io/component: microservice
+    app.kubernetes.io/part-of: lugx-gaming
+    app.kubernetes.io/version: "1.0.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: analytics-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: analytics-service
+        app.kubernetes.io/component: microservice
+    spec:
+      serviceAccountName: analytics-service-sa
+      
+      # Init container for ClickHouse schema initialization
+      initContainers:
+      - name: schema-init
+        image: analytics-service:latest
+        imagePullPolicy: IfNotPresent
+        command: ["python", "-c", "from app.clients.clickhouse_client import get_client; import asyncio; asyncio.run(get_client().init_schema())"]
+        env:
+        - name: CLICKHOUSE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-host
+        - name: CLICKHOUSE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-port
+        - name: CLICKHOUSE_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-database
+        - name: CLICKHOUSE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-username
+        - name: CLICKHOUSE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-password
+        - name: ENVIRONMENT
+          value: "development"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+      
+      # Main application container
+      containers:
+      - name: analytics-service
+        image: analytics-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8003
+          name: http
+          protocol: TCP
+        env:
+        - name: CLICKHOUSE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-host
+        - name: CLICKHOUSE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-port
+        - name: CLICKHOUSE_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-database
+        - name: CLICKHOUSE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-username
+        - name: CLICKHOUSE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-secrets
+              key: clickhouse-password
+        - name: GAME_SERVICE_URL
+          value: "http://game-service:8001"
+        - name: ORDER_SERVICE_URL
+          value: "http://order-service:8002"
+        - name: ENVIRONMENT
+          value: "development"
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: ANALYTICS_BATCH_SIZE
+          value: "1000"
+        - name: ANALYTICS_BATCH_TIMEOUT
+          value: "30"
+        resources:
+          limits:
+            memory: "1Gi"
+            cpu: "750m"
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 15"]
+      
+      # Graceful shutdown with longer period for analytics processing
+      terminationGracePeriodSeconds: 45
+      
+      # Host networking configuration
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+
+---
+# Analytics Service for Development
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-service
+  namespace: lugx-dev
+  labels:
+    app.kubernetes.io/name: analytics-service
+    app.kubernetes.io/component: microservice
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8003
+    targetPort: 8003
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: analytics-service

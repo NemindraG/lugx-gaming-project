@@ -116,7 +116,7 @@ class GameBase(BaseSchema):
     short_description: Optional[str] = Field(None, max_length=500)
     publisher_id: UUID
     release_date: Optional[date] = None
-    price: Decimal = Field(..., ge=0, max_digits=10, decimal_places=2)
+    price: Decimal = Field(..., ge=0)
     discount_percentage: int = Field(0, ge=0, le=100)
     cover_image_url: Optional[str] = Field(None, max_length=500)
     thumbnail_url: Optional[str] = Field(None, max_length=500)
@@ -196,7 +196,7 @@ class GameUpdate(BaseSchema):
     short_description: Optional[str] = Field(None, max_length=500)
     publisher_id: Optional[UUID] = None
     release_date: Optional[date] = None
-    price: Optional[Decimal] = Field(None, ge=0, max_digits=10, decimal_places=2)
+    price: Optional[Decimal] = Field(None, ge=0)
     discount_percentage: Optional[int] = Field(None, ge=0, le=100)
     cover_image_url: Optional[str] = Field(None, max_length=500)
     thumbnail_url: Optional[str] = Field(None, max_length=500)

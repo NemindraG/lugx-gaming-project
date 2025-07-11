@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 import structlog
-import uvicorn
+
 
 from app.api.v1.api import api_router
 from app.database import check_database_connection
@@ -205,7 +205,7 @@ if __name__ == "__main__":
     import uvicorn
 
     # Development server configuration
-    uvicorn.run( # type: ignore
+    uvicorn.run(
         "app.main:app",
         host=os.getenv("HOST", "0.0.0.0"),
         port=int(os.getenv("PORT", "8001")),

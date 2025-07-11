@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>Lugx Gaming - Shopping Cart</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+      .cart-container {
+        padding: 60px 0;
+        min-height: 500px;
+      }
+      
+      .cart-item {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      
+      .cart-item-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+      
+      .cart-item-details {
+        flex: 1;
+      }
+      
+      .cart-item-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+      }
+      
+      .cart-item-category {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+      
+      .cart-item-price {
+        font-size: 16px;
+        font-weight: 600;
+        color: #e74c3c;
+      }
+      
+      .cart-item-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-shrink: 0;
+      }
+      
+      .quantity-controls {
+        display: flex;
+        align-items: center;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      
+      .quantity-btn {
+        background: #f8f9fa;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s;
+      }
+      
+      .quantity-btn:hover {
+        background: #e9ecef;
+      }
+      
+      .quantity-input {
+        border: none;
+        width: 60px;
+        text-align: center;
+        padding: 8px 4px;
+        font-weight: 600;
+      }
+      
+      .quantity-input:focus {
+        outline: none;
+      }
+      
+      .remove-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+      }
+      
+      .remove-btn:hover {
+        background: #c82333;
+      }
+      
+      .cart-summary {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 30px;
+        position: sticky;
+        top: 100px;
+      }
+      
+      .cart-summary h4 {
+        color: #333;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+      
+      .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+      
+      .summary-row:last-child {
+        border-bottom: none;
+        font-weight: 600;
+        font-size: 18px;
+        color: #333;
+        margin-top: 10px;
+        padding-top: 20px;
+        border-top: 2px solid #eee;
+      }
+      
+      .checkout-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+      }
+      
+      .checkout-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+      }
+      
+      .checkout-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .continue-shopping {
+        display: inline-block;
+        margin-top: 15px;
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      
+      .continue-shopping:hover {
+        text-decoration: underline;
+      }
+      
+      .empty-cart {
+        text-align: center;
+        padding: 80px 20px;
+        color: #666;
+      }
+      
+      .empty-cart i {
+        font-size: 64px;
+        color: #ddd;
+        margin-bottom: 20px;
+      }
+      
+      .empty-cart h3 {
+        color: #333;
+        margin-bottom: 15px;
+      }
+      
+      .empty-cart p {
+        margin-bottom: 30px;
+        color: #666;
+      }
+      
+      .shop-now-btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      }
+      
+      .shop-now-btn:hover {
+        background: #0056b3;
+        color: white;
+        text-decoration: none;
+      }
+      
+      .cart-loading {
+        text-align: center;
+        padding: 60px 20px;
+      }
+      
+      .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.3em;
+      }
+      
+      @media (max-width: 768px) {
+        .cart-item {
+          flex-direction: column;
+          text-align: center;
+        }
+        
+        .cart-item-actions {
+          width: 100%;
+          justify-content: center;
+        }
+        
+        .cart-summary {
+          position: static;
+          margin-top: 30px;
+        }
+      }
+    </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/logo.png" alt="" style="width: 158px;">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="index.html">Home</a></li>
+                      <li><a href="shop.html">Our Shop</a></li>
+                      <li><a href="product-details.html">Product Details</a></li>
+                      <li><a href="contact.html">Contact Us</a></li>
+                      <li><a href="login.html">Sign In</a></li>
+                  </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Shopping Cart</h3>
+          <span class="breadcrumb"><a href="index.html">Home</a> > Shopping Cart</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-container">
+    <div class="container">
+      <!-- Loading State -->
+      <div id="cartLoading" class="cart-loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-3">Loading your cart...</p>
+      </div>
+
+      <!-- Empty Cart State -->
+      <div id="emptyCart" class="empty-cart" style="display: none;">
+        <i class="fa fa-shopping-cart"></i>
+        <h3>Your cart is empty</h3>
+        <p>Looks like you haven't added any games to your cart yet.</p>
+        <a href="shop.html" class="shop-now-btn">Start Shopping</a>
+      </div>
+
+      <!-- Cart Content -->
+      <div id="cartContent" class="row" style="display: none;">
+        <div class="col-lg-8">
+          <div id="cartItems">
+            <!-- Cart items will be dynamically inserted here -->
+          </div>
+        </div>
+        
+        <div class="col-lg-4">
+          <div class="cart-summary">
+            <h4>Order Summary</h4>
+            
+            <div class="summary-row">
+              <span>Subtotal (<span id="itemCount">0</span> items)</span>
+              <span id="subtotalAmount">$0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Tax</span>
+              <span id="taxAmount">$0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Shipping</span>
+              <span id="shippingAmount">$0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Total</span>
+              <span id="totalAmount">$0.00</span>
+            </div>
+            
+            <button class="checkout-btn" id="checkoutButton" disabled>
+              Proceed to Checkout
+            </button>
+            
+            <a href="shop.html" class="continue-shopping">← Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="col-lg-12">
+        <p>Copyright © 2048 LUGX Gaming Company. All rights reserved. &nbsp;&nbsp; <a rel="nofollow" href="https://templatemo.com" target="_blank">Design: TemplateMo</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/counter.js"></script>
+  <script src="assets/js/custom.js"></script>
+  
+  <!-- LugX API Integration Layer -->
+  <script src="assets/js/api/apiService.js"></script>
+  <script src="assets/js/api/authService.js"></script>
+  <script src="assets/js/api/analyticsService.js"></script>
+  
+  <!-- Cart Integration -->
+  <script src="assets/js/integration/cartIntegration.js"></script>
+  
+  <!-- Legacy API Wrapper -->
+  <script src="assets/js/lugx-api.js"></script>
+
+  <!-- Cart Page Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      const cartLoading = document.getElementById('cartLoading');
+      const emptyCart = document.getElementById('emptyCart');
+      const cartContent = document.getElementById('cartContent');
+      const cartItemsContainer = document.getElementById('cartItems');
+      const checkoutButton = document.getElementById('checkoutButton');
+
+      // Wait for cart integration to be ready
+      await waitForCartIntegration();
+      
+      // Load and display cart
+      await loadCart();
+      
+      // Setup event listeners
+      setupEventListeners();
+      
+      // Track page view
+      if (window.analyticsService) {
+        window.analyticsService.trackPageView({
+          page_type: 'cart',
+          cart_item_count: window.cartIntegration?.getCartState().count || 0
+        });
+      }
+
+      async function waitForCartIntegration() {
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds
+        
+        while (!window.cartIntegration && attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          attempts++;
+        }
+        
+        if (!window.cartIntegration) {
+          console.warn('Cart integration not available');
+          showError('Cart functionality is not available at the moment.');
+        }
+      }
+
+      async function loadCart() {
+        try {
+          if (!window.cartIntegration) {
+            showEmptyCart();
+            return;
+          }
+
+          const cartState = window.cartIntegration.getCartState();
+          
+          if (!cartState.items || cartState.items.length === 0) {
+            showEmptyCart();
+          } else {
+            showCartContent(cartState);
+          }
+          
+        } catch (error) {
+          console.error('Failed to load cart:', error);
+          showError('Failed to load cart. Please refresh the page.');
+        } finally {
+          hideLoading();
+        }
+      }
+
+      function showEmptyCart() {
+        cartLoading.style.display = 'none';
+        cartContent.style.display = 'none';
+        emptyCart.style.display = 'block';
+      }
+
+      function showCartContent(cartState) {
+        cartLoading.style.display = 'none';
+        emptyCart.style.display = 'none';
+        cartContent.style.display = 'block';
+        
+        renderCartItems(cartState.items);
+        updateCartSummary(cartState);
+        
+        // Enable checkout button
+        checkoutButton.disabled = false;
+      }
+
+      function hideLoading() {
+        cartLoading.style.display = 'none';
+      }
+
+      function showError(message) {
+        cartLoading.innerHTML = `
+          <div class="alert alert-danger" role="alert">
+            <i class="fa fa-exclamation-triangle"></i>
+            ${message}
+          </div>
+        `;
+      }
+
+      function renderCartItems(items) {
+        const itemsHTML = items.map(item => `
+          <div class="cart-item" data-item-id="${item.id}" data-game-id="${item.game_id}">
+            <img src="${item.image_url || 'assets/images/default-game.jpg'}" 
+                 alt="${item.game_name}" 
+                 class="cart-item-image"
+                 onerror="this.src='assets/images/default-game.jpg'">
+            
+            <div class="cart-item-details">
+              <div class="cart-item-name">${item.game_name}</div>
+              <div class="cart-item-category">${item.category || 'Game'}</div>
+              <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+            </div>
+            
+            <div class="cart-item-actions">
+              <div class="quantity-controls">
+                <button class="quantity-btn" onclick="changeQuantity('${item.id}', -1)">-</button>
+                <input type="number" 
+                       class="quantity-input" 
+                       value="${item.quantity}" 
+                       min="1" 
+                       max="10"
+                       data-item-id="${item.id}"
+                       onchange="updateQuantity('${item.id}', this.value)">
+                <button class="quantity-btn" onclick="changeQuantity('${item.id}', 1)">+</button>
+              </div>
+              
+              <button class="remove-btn" onclick="removeItem('${item.id}')">
+                <i class="fa fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        `).join('');
+        
+        cartItemsContainer.innerHTML = itemsHTML;
+      }
+
+      function updateCartSummary(cartState) {
+        document.getElementById('itemCount').textContent = cartState.count;
+        document.getElementById('subtotalAmount').textContent = `$${cartState.subtotal.toFixed(2)}`;
+        document.getElementById('taxAmount').textContent = `$${cartState.tax.toFixed(2)}`;
+        document.getElementById('shippingAmount').textContent = cartState.shipping === 0 ? 'FREE' : `$${cartState.shipping.toFixed(2)}`;
+        document.getElementById('totalAmount').textContent = `$${cartState.total.toFixed(2)}`;
+      }
+
+      function setupEventListeners() {
+        // Checkout button
+        checkoutButton.addEventListener('click', function() {
+          if (window.authService && !window.authService.isAuthenticated()) {
+            // Redirect to login with return URL
+            const returnUrl = encodeURIComponent('checkout.html');
+            window.location.href = `login.html?redirect=${returnUrl}`;
+          } else {
+            window.location.href = 'checkout.html';
+          }
+        });
+
+        // Listen for cart updates
+        document.addEventListener('cartUpdated', function(e) {
+          const cartSummary = e.detail;
+          if (cartSummary.isEmpty) {
+            showEmptyCart();
+          } else {
+            loadCart(); // Reload the entire cart display
+          }
+        });
+      }
+
+      // Global functions for cart operations
+      window.changeQuantity = async function(itemId, change) {
+        try {
+          const input = document.querySelector(`input[data-item-id="${itemId}"]`);
+          const newQuantity = Math.max(1, parseInt(input.value) + change);
+          
+          input.value = newQuantity;
+          await updateQuantity(itemId, newQuantity);
+          
+        } catch (error) {
+          console.error('Failed to change quantity:', error);
+          showNotification('Failed to update quantity', 'error');
+        }
+      };
+
+      window.updateQuantity = async function(itemId, quantity) {
+        try {
+          const newQuantity = Math.max(1, parseInt(quantity));
+          
+          if (window.cartIntegration) {
+            // Update quantity (this would need to be implemented in CartIntegration)
+            await window.cartIntegration.updateQuantity(itemId, newQuantity);
+            
+            // Reload cart display
+            await loadCart();
+            
+            // Track quantity change
+            if (window.analyticsService) {
+              window.analyticsService.track('cart_quantity_changed', {
+                item_id: itemId,
+                new_quantity: newQuantity
+              });
+            }
+          }
+          
+        } catch (error) {
+          console.error('Failed to update quantity:', error);
+          showNotification('Failed to update quantity', 'error');
+          
+          // Reload to reset to correct quantity
+          loadCart();
+        }
+      };
+
+      window.removeItem = async function(itemId) {
+        try {
+          if (confirm('Are you sure you want to remove this item from your cart?')) {
+            if (window.cartIntegration) {
+              await window.cartIntegration.removeItem(itemId);
+              
+              // Track item removal
+              if (window.analyticsService) {
+                window.analyticsService.track('cart_item_removed', {
+                  item_id: itemId,
+                  removal_source: 'cart_page'
+                });
+              }
+              
+              showNotification('Item removed from cart', 'success');
+              
+              // Reload cart display
+              await loadCart();
+            }
+          }
+          
+        } catch (error) {
+          console.error('Failed to remove item:', error);
+          showNotification('Failed to remove item', 'error');
+        }
+      };
+
+      function showNotification(message, type = 'info') {
+        // Simple notification system
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'}`;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 1050;
+          min-width: 300px;
+          animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+      }
+    });
+  </script>
+
+  </body>
+</html>

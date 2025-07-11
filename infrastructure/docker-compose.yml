@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL for Game Service
   postgres-game:
@@ -13,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres/init/game-service.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./infrastructure/docker/postgres/init/game-service.sql:/docker-entrypoint-initdb.d/01-init.sql
       - postgres-game-data:/var/lib/postgresql/data
     networks:
       - lugx-network
@@ -36,7 +34,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./postgres/init/order-service.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./infrastructure/docker/postgres/init/order-service.sql:/docker-entrypoint-initdb.d/01-init.sql
       - postgres-order-data:/var/lib/postgresql/data
     networks:
       - lugx-network
@@ -53,17 +51,15 @@ services:
     container_name: analytics-service-db
     environment:
       CLICKHOUSE_DB: lugx_analytics
-      CLICKHOUSE_USER: analytics_service
-      CLICKHOUSE_PASSWORD: analytics_secure_password_2024
+      CLICKHOUSE_USER: analytics_user
+      CLICKHOUSE_PASSWORD: analytics_password
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
     ports:
       - "8123:8123"  # HTTP interface
       - "9000:9000"  # Native protocol
     volumes:
-      - ./clickhouse/init:/docker-entrypoint-initdb.d
+      - ./infrastructure/docker/clickhouse/init:/docker-entrypoint-initdb.d
       - clickhouse-data:/var/lib/clickhouse
-      - ./clickhouse/config/users.xml:/etc/clickhouse-server/users.xml:ro
-      - ./clickhouse/config/config.xml:/etc/clickhouse-server/config.xml:ro
     networks:
       - lugx-network
     ulimits:
@@ -71,7 +67,7 @@ services:
         soft: 262144
         hard: 262144
     healthcheck:
-      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -81,11 +77,10 @@ services:
   redis:
     image: redis:7-alpine
     container_name: shared-redis-cache
-    command: redis-server /usr/local/etc/redis/redis.conf
+    command: redis-server --save 60 1 --loglevel warning
     ports:
       - "6379:6379"
     volumes:
-      - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
       - redis-data:/data
     networks:
       - lugx-network
@@ -96,6 +91,89 @@ services:
       retries: 5
     restart: unless-stopped
 
+  # Game Service (FastAPI)
+  game-service:
+    build:
+      context: ../services/game-service
+      dockerfile: Dockerfile
+    container_name: lugx-game-service
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://game_service:game_secure_password_2024@postgres-game:5432/lugx_games
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+    ports:
+      - "8001:8001"
+    networks:
+      - lugx-network
+    depends_on:
+      postgres-game:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Order Service (FastAPI)
+  order-service:
+    build:
+      context: ../services/order-service
+      dockerfile: Dockerfile
+    container_name: lugx-order-service
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://order_service:order_secure_password_2024@postgres-order:5432/lugx_orders
+      - REDIS_URL=redis://redis:6379/1
+      - GAME_SERVICE_URL=http://game-service:8001
+      - ENVIRONMENT=development
+      - JWT_SECRET_KEY=your-secret-key-here-change-in-production
+    ports:
+      - "8002:8002"
+    networks:
+      - lugx-network
+    depends_on:
+      postgres-order:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      game-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Analytics Service (FastAPI)
+  analytics-service:
+    build:
+      context: ../services/analytics-service
+      dockerfile: Dockerfile
+    container_name: lugx-analytics-service
+    environment:
+      - CLICKHOUSE_HOST=clickhouse
+      - CLICKHOUSE_PORT=8123
+      - CLICKHOUSE_DATABASE=lugx_analytics
+      - CLICKHOUSE_USERNAME=analytics_user
+      - CLICKHOUSE_PASSWORD=analytics_password
+      - ENVIRONMENT=development
+    ports:
+      - "8003:8003"
+    networks:
+      - lugx-network
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
   # Frontend Web Application
   frontend:
     image: nginx:alpine
@@ -103,15 +181,17 @@ services:
     ports:
       - "3000:80"
     volumes:
-      - ../frontend:/usr/share/nginx/html:ro
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../lugx_gaming:/usr/share/nginx/html:ro
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - lugx-network
     depends_on:
-      - postgres-game
-      - postgres-order
-      - clickhouse
-      - redis
+      game-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      analytics-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 10s

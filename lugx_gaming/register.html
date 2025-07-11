@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title>Lugx Gaming - Create Account</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="assets/css/fontawesome.css">
+    <link rel="stylesheet" href="assets/css/templatemo-lugx-gaming.css">
+    <link rel="stylesheet" href="assets/css/owl.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+
+    <style>
+      .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+      }
+      
+      .auth-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+      
+      .auth-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .auth-header h2 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      
+      .auth-header p {
+        color: #666;
+        margin-bottom: 0;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      .form-row {
+        display: flex;
+        gap: 15px;
+      }
+      
+      .form-row .form-group {
+        flex: 1;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+      
+      .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
+      
+      .form-control:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+      }
+      
+      .form-control.is-invalid {
+        border-color: #dc3545;
+      }
+      
+      .form-control.is-valid {
+        border-color: #28a745;
+      }
+      
+      .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+      
+      .password-strength {
+        margin-top: 8px;
+      }
+      
+      .password-strength-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: #e1e5e9;
+        overflow: hidden;
+      }
+      
+      .password-strength-fill {
+        height: 100%;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+      }
+      
+      .password-strength-text {
+        font-size: 12px;
+        margin-top: 4px;
+        font-weight: 500;
+      }
+      
+      .strength-weak .password-strength-fill {
+        width: 33%;
+        background: #dc3545;
+      }
+      
+      .strength-medium .password-strength-fill {
+        width: 66%;
+        background: #ffc107;
+      }
+      
+      .strength-strong .password-strength-fill {
+        width: 100%;
+        background: #28a745;
+      }
+      
+      .btn-auth {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+      }
+      
+      .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+      }
+      
+      .btn-auth:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+      
+      .auth-divider {
+        text-align: center;
+        margin: 25px 0;
+        position: relative;
+      }
+      
+      .auth-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e1e5e9;
+      }
+      
+      .auth-divider span {
+        background: white;
+        padding: 0 20px;
+        color: #666;
+        font-size: 14px;
+      }
+      
+      .auth-links {
+        text-align: center;
+        margin-top: 20px;
+      }
+      
+      .auth-links a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      
+      .auth-links a:hover {
+        text-decoration: underline;
+      }
+      
+      .terms-checkbox {
+        margin-bottom: 25px;
+      }
+      
+      .terms-checkbox .form-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .terms-checkbox .form-check-input {
+        margin-top: 4px;
+      }
+      
+      .terms-checkbox .form-check-label {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+      }
+      
+      .terms-checkbox a {
+        color: #007bff;
+        text-decoration: none;
+      }
+      
+      .terms-checkbox a:hover {
+        text-decoration: underline;
+      }
+      
+      .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: none;
+      }
+      
+      .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      
+      .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      
+      .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+      }
+      
+      .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.15em;
+      }
+    </style>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="index.html" class="logo">
+                        <img src="assets/images/logo.png" alt="" style="width: 158px;">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li><a href="index.html">Home</a></li>
+                      <li><a href="shop.html">Our Shop</a></li>
+                      <li><a href="product-details.html">Product Details</a></li>
+                      <li><a href="contact.html">Contact Us</a></li>
+                      <li><a href="login.html">Sign In</a></li>
+                  </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Create Account</h3>
+          <span class="breadcrumb"><a href="index.html">Home</a> > Create Account</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-container">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+          <div class="auth-card">
+            <div class="auth-header">
+              <h2>Join Lugx Gaming!</h2>
+              <p>Create your account to start your gaming journey</p>
+            </div>
+
+            <form id="registerForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="firstName">First Name</label>
+                  <input type="text" class="form-control" id="firstName" name="firstName" required 
+                         placeholder="Enter your first name">
+                  <div class="invalid-feedback"></div>
+                </div>
+
+                <div class="form-group">
+                  <label for="lastName">Last Name</label>
+                  <input type="text" class="form-control" id="lastName" name="lastName" required 
+                         placeholder="Enter your last name">
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" required 
+                       placeholder="Enter your email address">
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Phone Number (Optional)</label>
+                <input type="tel" class="form-control" id="phone" name="phone" 
+                       placeholder="Enter your phone number">
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required 
+                       placeholder="Create a strong password">
+                <div class="password-strength" id="passwordStrength">
+                  <div class="password-strength-bar">
+                    <div class="password-strength-fill"></div>
+                  </div>
+                  <div class="password-strength-text"></div>
+                </div>
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required 
+                       placeholder="Confirm your password">
+                <div class="invalid-feedback"></div>
+              </div>
+
+              <div class="terms-checkbox">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="agreeTerms" name="agreeTerms" required>
+                  <label class="form-check-label" for="agreeTerms">
+                    I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+                    <a href="#" target="_blank">Privacy Policy</a>
+                  </label>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="newsletter" name="newsletter">
+                  <label class="form-check-label" for="newsletter">
+                    Send me gaming news and exclusive offers
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-auth" id="registerButton">
+                Create Account
+              </button>
+            </form>
+
+            <div class="auth-divider">
+              <span>Already have an account?</span>
+            </div>
+
+            <div class="auth-links">
+              <a href="login.html">Sign in to your account</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="col-lg-12">
+        <p>Copyright © 2048 LUGX Gaming Company. All rights reserved. &nbsp;&nbsp; <a rel="nofollow" href="https://templatemo.com" target="_blank">Design: TemplateMo</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/counter.js"></script>
+  <script src="assets/js/custom.js"></script>
+  
+  <!-- LugX API Integration Layer -->
+  <script src="assets/js/api/apiService.js"></script>
+  <script src="assets/js/api/authService.js"></script>
+  <script src="assets/js/api/analyticsService.js"></script>
+  
+  <!-- Cart Integration -->
+  <script src="assets/js/integration/cartIntegration.js"></script>
+  
+  <!-- Legacy API Wrapper -->
+  <script src="assets/js/lugx-api.js"></script>
+
+  <!-- Registration Page Logic -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const registerForm = document.getElementById('registerForm');
+      const registerButton = document.getElementById('registerButton');
+      const firstNameInput = document.getElementById('firstName');
+      const lastNameInput = document.getElementById('lastName');
+      const emailInput = document.getElementById('email');
+      const phoneInput = document.getElementById('phone');
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('confirmPassword');
+      const agreeTermsInput = document.getElementById('agreeTerms');
+      const passwordStrengthIndicator = document.getElementById('passwordStrength');
+
+      // Check if user is already logged in
+      if (window.authService && window.authService.isAuthenticated()) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Form submission handler
+      registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Clear previous validation states
+        clearValidationStates();
+        
+        // Get form data
+        const formData = new FormData(registerForm);
+        const userData = {
+          first_name: formData.get('firstName').trim(),
+          last_name: formData.get('lastName').trim(),
+          email: formData.get('email').trim(),
+          phone: formData.get('phone')?.trim() || null,
+          password: formData.get('password'),
+          confirm_password: formData.get('confirmPassword'),
+          agree_terms: formData.get('agreeTerms') === 'on',
+          newsletter: formData.get('newsletter') === 'on'
+        };
+        
+        // Validate form
+        if (!validateForm(userData)) {
+          return;
+        }
+        
+        // Show loading state
+        showLoadingState();
+        
+        try {
+          // Attempt registration
+          const result = await window.authService.register({
+            first_name: userData.first_name,
+            last_name: userData.last_name,
+            email: userData.email,
+            phone: userData.phone,
+            password: userData.password
+          });
+          
+          if (result.success) {
+            showSuccess('Account created successfully! Redirecting...');
+            
+            // Track successful registration
+            if (window.analyticsService) {
+              window.analyticsService.track('user_registration_success', {
+                registration_method: 'email',
+                newsletter_subscribed: userData.newsletter,
+                has_phone: !!userData.phone
+              });
+            }
+            
+            // Redirect after brief delay
+            setTimeout(() => {
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirectUrl = urlParams.get('redirect') || 'index.html';
+              window.location.href = redirectUrl;
+            }, 1500);
+            
+          } else {
+            showError(result.error || 'Registration failed. Please try again.');
+            
+            // Track failed registration
+            if (window.analyticsService) {
+              window.analyticsService.track('user_registration_failed', {
+                error: result.error
+              });
+            }
+          }
+          
+        } catch (error) {
+          console.error('Registration error:', error);
+          showError('An unexpected error occurred. Please try again.');
+          
+          if (window.analyticsService) {
+            window.analyticsService.trackError(error, { context: 'registration_form' });
+          }
+        } finally {
+          hideLoadingState();
+        }
+      });
+
+      // Real-time validation
+      firstNameInput.addEventListener('blur', function() {
+        validateName(this.value.trim(), 'First name');
+      });
+
+      lastNameInput.addEventListener('blur', function() {
+        validateName(this.value.trim(), 'Last name');
+      });
+
+      emailInput.addEventListener('blur', function() {
+        validateEmail(this.value.trim());
+      });
+
+      phoneInput.addEventListener('blur', function() {
+        if (this.value.trim()) {
+          validatePhone(this.value.trim());
+        }
+      });
+
+      passwordInput.addEventListener('input', function() {
+        updatePasswordStrength(this.value);
+        if (confirmPasswordInput.value) {
+          validatePasswordConfirmation(confirmPasswordInput.value, this.value);
+        }
+      });
+
+      passwordInput.addEventListener('blur', function() {
+        validatePassword(this.value);
+      });
+
+      confirmPasswordInput.addEventListener('blur', function() {
+        validatePasswordConfirmation(this.value, passwordInput.value);
+      });
+
+      agreeTermsInput.addEventListener('change', function() {
+        validateTermsAgreement(this.checked);
+      });
+
+      // Functions
+      function validateForm(userData) {
+        let isValid = true;
+        
+        if (!validateName(userData.first_name, 'First name')) isValid = false;
+        if (!validateName(userData.last_name, 'Last name')) isValid = false;
+        if (!validateEmail(userData.email)) isValid = false;
+        if (userData.phone && !validatePhone(userData.phone)) isValid = false;
+        if (!validatePassword(userData.password)) isValid = false;
+        if (!validatePasswordConfirmation(userData.confirm_password, userData.password)) isValid = false;
+        if (!validateTermsAgreement(userData.agree_terms)) isValid = false;
+        
+        return isValid;
+      }
+
+      function validateName(name, fieldName) {
+        const input = fieldName.includes('First') ? firstNameInput : lastNameInput;
+        
+        if (!name) {
+          showFieldError(input, `${fieldName} is required`);
+          return false;
+        } else if (name.length < 2) {
+          showFieldError(input, `${fieldName} must be at least 2 characters`);
+          return false;
+        } else if (!/^[a-zA-Z\s-']+$/.test(name)) {
+          showFieldError(input, `${fieldName} contains invalid characters`);
+          return false;
+        } else {
+          showFieldSuccess(input);
+          return true;
+        }
+      }
+
+      function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!email) {
+          showFieldError(emailInput, 'Email address is required');
+          return false;
+        } else if (!emailRegex.test(email)) {
+          showFieldError(emailInput, 'Please enter a valid email address');
+          return false;
+        } else {
+          showFieldSuccess(emailInput);
+          return true;
+        }
+      }
+
+      function validatePhone(phone) {
+        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+        
+        if (!phoneRegex.test(phone.replace(/[-\s\(\)]/g, ''))) {
+          showFieldError(phoneInput, 'Please enter a valid phone number');
+          return false;
+        } else {
+          showFieldSuccess(phoneInput);
+          return true;
+        }
+      }
+
+      function validatePassword(password) {
+        if (!password) {
+          showFieldError(passwordInput, 'Password is required');
+          return false;
+        } else if (password.length < 8) {
+          showFieldError(passwordInput, 'Password must be at least 8 characters');
+          return false;
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+          showFieldError(passwordInput, 'Password must contain uppercase, lowercase, and number');
+          return false;
+        } else {
+          showFieldSuccess(passwordInput);
+          return true;
+        }
+      }
+
+      function validatePasswordConfirmation(confirmPassword, password) {
+        if (!confirmPassword) {
+          showFieldError(confirmPasswordInput, 'Please confirm your password');
+          return false;
+        } else if (confirmPassword !== password) {
+          showFieldError(confirmPasswordInput, 'Passwords do not match');
+          return false;
+        } else {
+          showFieldSuccess(confirmPasswordInput);
+          return true;
+        }
+      }
+
+      function validateTermsAgreement(agreed) {
+        if (!agreed) {
+          showFieldError(agreeTermsInput, 'You must agree to the terms and conditions');
+          return false;
+        } else {
+          showFieldSuccess(agreeTermsInput);
+          return true;
+        }
+      }
+
+      function updatePasswordStrength(password) {
+        const strengthIndicator = passwordStrengthIndicator;
+        const strengthFill = strengthIndicator.querySelector('.password-strength-fill');
+        const strengthText = strengthIndicator.querySelector('.password-strength-text');
+        
+        let score = 0;
+        let feedback = '';
+        
+        if (password.length >= 8) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/\d/.test(password)) score++;
+        if (/[^a-zA-Z\d]/.test(password)) score++;
+        
+        // Remove existing strength classes
+        strengthIndicator.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+        
+        if (password.length === 0) {
+          strengthText.textContent = '';
+          return;
+        }
+        
+        if (score <= 2) {
+          strengthIndicator.classList.add('strength-weak');
+          feedback = 'Weak password';
+        } else if (score <= 4) {
+          strengthIndicator.classList.add('strength-medium');
+          feedback = 'Medium strength';
+        } else {
+          strengthIndicator.classList.add('strength-strong');
+          feedback = 'Strong password';
+        }
+        
+        strengthText.textContent = feedback;
+      }
+
+      function showFieldError(input, message) {
+        input.classList.remove('is-valid');
+        input.classList.add('is-invalid');
+        const feedback = input.parentNode.querySelector('.invalid-feedback');
+        if (feedback) {
+          feedback.textContent = message;
+        }
+      }
+
+      function showFieldSuccess(input) {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+      }
+
+      function clearValidationStates() {
+        const inputs = registerForm.querySelectorAll('.form-control, .form-check-input');
+        inputs.forEach(input => {
+          input.classList.remove('is-valid', 'is-invalid');
+        });
+        
+        // Clear any existing alerts
+        const existingAlerts = registerForm.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+      }
+
+      function showLoadingState() {
+        registerButton.disabled = true;
+        registerButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating Account...';
+      }
+
+      function hideLoadingState() {
+        registerButton.disabled = false;
+        registerButton.innerHTML = 'Create Account';
+      }
+
+      function showError(message) {
+        showAlert(message, 'danger');
+      }
+
+      function showSuccess(message) {
+        showAlert(message, 'success');
+      }
+
+      function showAlert(message, type) {
+        // Remove existing alerts
+        const existingAlerts = registerForm.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        // Create new alert
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        
+        // Insert at the top of the form
+        registerForm.insertBefore(alert, registerForm.firstChild);
+        
+        // Auto-remove success messages
+        if (type === 'success') {
+          setTimeout(() => {
+            alert.remove();
+          }, 5000);
+        }
+      }
+
+      // Track page view
+      if (window.analyticsService) {
+        window.analyticsService.trackPageView({
+          page_type: 'registration',
+          referrer: document.referrer
+        });
+      }
+    });
+  </script>
+
+  </body>
+</html>
